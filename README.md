@@ -1,0 +1,1 @@
+# Qvickly-Payments-for-WooCommerce
