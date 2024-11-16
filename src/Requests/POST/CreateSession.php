@@ -33,7 +33,7 @@ class CreateSession extends POST {
 			),
 			'PaymentData'  => array(
 				'currency'    => get_woocommerce_currency(),
-				'language'    => explode( '_', get_locale() )[0],
+				'language'    => explode( '_', get_locale() )[0] ?? 'en',
 				'country'     => $cart->get_country(),
 				'orderid'     => Qvickly_Payments()->session()->get_reference(),
 				'accepturl'   => $cart->get_confirmation_url(),
