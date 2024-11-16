@@ -22,7 +22,27 @@ abstract class POST extends BaseRequest {
 	 * @return array
 	 */
 	public function get_request_args() {
-		$body = wp_json_encode( apply_filters( "{$this->config['slug']}_request_args", $this->get_body() ) );
+		// Apply any filters before we calculate the hash.
+		$body = apply_filters( "{$this->config['slug']}_request_args", $this->get_body() );
+
+		// The content of get_body() must be assigned to the 'data' key in the body array.
+		$body = array( 'data' => $this->get_body() );
+		$hash = hash_hmac( 'sha512', wp_json_encode( $body ), $this->settings['api_key'] );
+
+		$is_test_mode = $this->settings['test_mode'] ? 'true' : 'false';
+		$credentials  = array(
+			'id'     => "{$this->settings['api_id']}",
+			'hash'   => $hash,
+			'client' => 'QvicklyPaymentsForWooCommerce:Qvickly:' . QVICKLY_PAYMENTS_VERSION,
+			'test'   => $is_test_mode,
+		);
+
+		$body = wp_json_encode(
+			array(
+				'credentials' => $credentials,
+				'function'    => $this->arguments['function'],
+			) + $body
+		);
 
 		return array(
 			'headers'    => $this->get_request_headers(),

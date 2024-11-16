@@ -22,58 +22,30 @@ abstract class BaseRequest extends Request {
 			'plugin_short_name'  => 'QP',
 			'logging_enabled'    => wc_string_to_bool( $settings['logging'] ),
 			'extended_debugging' => wc_string_to_bool( $settings['extended_logging'] ),
-			'base_url'           => 'https://api.sandbox.qvickly.com',
+			'base_url'           => 'https://api.qvickly.io',
 		);
 
 		parent::__construct( $config, $settings, $args );
 	}
 
 	/**
-	 * Calculate the auth header.
+	 * Retrieve the auth header.
+	 *
+	 * @return array
+	 */
+	protected function get_request_headers() {
+		return array(
+			'Content-Type' => 'application/json',
+		);
+	}
+
+	/**
+	 * Calculate the auth headers. Has to be implemented by the child class.
 	 *
 	 * @return string
 	 */
 	protected function calculate_auth() {
-		return $this->get_access_token();
-	}
-
-	/**
-	 * Get the access token.
-	 *
-	 * @return string
-	 */
-	protected function get_access_token() {
-		$key          = 'qvickly_payments_access_token';
-		$access_token = get_transient( $key );
-		if ( $access_token ) {
-			return $access_token;
-		}
-
-		$token = base64_encode( "{$this->settings['client_id']}:{$this->settings['client_secret']}" ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-
-		$env          = $this->settings['test_mode'] ? 'sandbox' : 'live';
-		$base_url     = "https://api.qvickly.io";
-		$request_args = array(
-			'headers' => array(
-				'Authorization' => "Basic $token",
-				'Content-Type'  => 'application/x-www-form-urlencoded',
-			),
-			'body'    => array(
-				'grant_type' => 'client_credentials',
-			),
-		);
-
-		$request = wp_remote_post( $base_url, $request_args );
-		if ( is_wp_error( $request ) ) {
-			return '';
-		}
-
-		$response = wp_remote_retrieve_body( $request );
-		$response = json_decode( $response, true );
-
-		$access_token = "{$response['token_type']} {$response['access_token']}";
-		set_transient( $key, $access_token, absint( $response['expires_in'] ) );
-		return $access_token;
+		return ''; // noop.
 	}
 
 	/**

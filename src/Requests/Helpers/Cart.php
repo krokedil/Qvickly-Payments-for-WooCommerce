@@ -92,6 +92,34 @@ class Cart extends CartBase {
 		return $order_lines;
 	}
 
+	public function get_articles() {
+		$articles = array();
+
+		foreach ( $this->get_line_items() as $item ) {
+			$articles[] = array(
+				'taxrate'    => $item->get_tax_rate(),
+				'withouttax' => $item->get_subtotal_amount(),
+				'artnr'      => $item->get_sku(),
+				'title'      => $item->get_name(),
+				'quantity'   => $item->get_quantity(),
+			);
+		}
+
+		return $articles;
+	}
+
+	public function get_cart() {
+		$cart = array(
+			'total' => array(
+				'withouttax' => $this->get_subtotal(),
+				'tax'        => $this->get_total_tax(),
+				'withtax'    => $this->get_total(),
+			),
+		);
+
+		return $cart;
+	}
+
 	/**
 	 * Get the country.
 	 *
