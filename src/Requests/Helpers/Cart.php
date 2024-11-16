@@ -117,6 +117,22 @@ class Cart extends CartBase {
 			),
 		);
 
+		$shippings             = $this->get_line_shipping();
+		$maybe_chosen_shipping = array_values( WC()->session->get( 'chosen_shipping_methods' ) );
+		if ( ! empty( $maybe_chosen_shipping ) ) {
+			$chosen_shipping = reset( $maybe_chosen_shipping );
+			foreach ( $shippings as $shipping ) {
+				if ( $chosen_shipping === $shipping->get_sku() ) {
+					$cart['shipping'] = array(
+						'withouttax' => $shipping->get_subtotal_amount(),
+						'taxrate'    => $shipping->get_tax_rate(),
+					);
+
+					break;
+				}
+			}
+		}
+
 		return $cart;
 	}
 
