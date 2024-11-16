@@ -35,7 +35,7 @@ class Settings {
 				'title' => __( 'Account settings', 'qvickly-payments-for-woocommerce' ),
 				'type'  => 'title',
 			),
-			'client_id'                => array(
+			'api_id'                   => array(
 				'title'             => __( 'API ID', 'qvickly-payments-for-woocommerce' ),
 				'type'              => 'text',
 				'default'           => '',
@@ -44,7 +44,7 @@ class Settings {
 					'autocomplete' => 'off',
 				),
 			),
-			'client_secret'            => array(
+			'api_key'                  => array(
 				'title'             => __( 'API Key', 'qvickly-payments-for-woocommerce' ),
 				'type'              => 'password',
 				'default'           => '',
