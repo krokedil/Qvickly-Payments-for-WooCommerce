@@ -24,9 +24,6 @@ class Assets {
 	 */
 	public function __construct() {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
-		// The client SDK requires that <script> tag ID is set to 'qvickly-payments'.
-		add_action( 'script_loader_tag', array( $this, 'script_loader_tag' ), 10, 2 );
 	}
 
 	/**
