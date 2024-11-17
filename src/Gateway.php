@@ -177,8 +177,8 @@ class Gateway extends \WC_Payment_Gateway {
 		$customer = $helper->get_customer();
 
 		$order = $helper->order;
-		$order->update_meta_data( '_wc_qvickly_reference', Qvickly_Payments()->session()->get_reference() );
-		$order->update_meta_data( '_wc_qvickly_session_id', Qvickly_Payments()->session()->get_id() );
+		$order->update_meta_data( '_qvickly_reference', Qvickly_Payments()->session()->get_reference() );
+		$order->update_meta_data( '_qvickly_session_id', Qvickly_Payments()->session()->get_id() );
 		$order->save();
 
 		// Update the nonce only if WordPress determines it necessary, such as when a guest becomes signed in.
@@ -246,7 +246,7 @@ class Gateway extends \WC_Payment_Gateway {
 			);
 		}
 
-		$session_id   = $order->get_meta( '_wc_qvickly_session_id' );
+		$session_id    = $order->get_meta( '_qvickly_session_id' );
 		$qvickly_order = Qvickly_Payments()->api()->get_session( $session_id );
 		if ( is_wp_error( $qvickly_order ) ) {
 			$context['sessionId'] = $session_id;
@@ -268,11 +268,11 @@ class Gateway extends \WC_Payment_Gateway {
 		$order->set_transaction_id( $payment_id );
 
 		// orderId not available if state is awaitingSignatory.
-		isset( $qvickly_order['orderId'] ) && $order->update_meta_data( '_wc_qvickly_order_id', $qvickly_order['orderId'] );
+		isset( $qvickly_order['orderId'] ) && $order->update_meta_data( '_qvickly_order_id', $qvickly_order['orderId'] );
 
 		$env = wc_string_to_bool( Qvickly_Payments()->settings( 'test_mode' ) ?? 'no' ) ? 'sandbox' : 'production';
-		$order->update_meta_data( '_wc_qvickly_environment', $env );
-		$order->update_meta_data( '_wc_qvickly_session_id', $qvickly_order['id'] );
+		$order->update_meta_data( '_qvickly_environment', $env );
+		$order->update_meta_data( '_qvickly_session_id', $qvickly_order['id'] );
 		$order->save();
 	}
 
@@ -285,7 +285,7 @@ class Gateway extends \WC_Payment_Gateway {
 	 * @return \WC_Order|bool The WC_Order or false if not found.
 	 */
 	public function get_order_by_session_id( $session_id ) {
-		$key    = '_wc_qvickly_session_id';
+		$key    = '_qvickly_session_id';
 		$orders = wc_get_orders(
 			array(
 				'meta_query' => array(
