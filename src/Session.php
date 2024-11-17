@@ -182,8 +182,10 @@ class Session {
 	 * @return bool Whether there was a session to resume.
 	 */
 	private function resume_session() {
-		$session = isset( WC()->session ) ? json_decode( WC()->session->get( self::SESSION_KEY ), true ) : null;
+		$session = isset( WC()->session ) ? WC()->session->get( self::SESSION_KEY ) : null;
 		if ( ! empty( $session ) ) {
+			$session = json_decode( $session, true );
+
 			$this->gateway_session    = $session['gateway_session'];
 			$this->session_hash       = $session['session_hash'];
 			$this->session_country    = $session['session_country'];
