@@ -16,8 +16,8 @@ class UpdateSession extends POST {
 	 */
 	public function __construct( $session_id ) {
 		parent::__construct();
-		$this->log_title = 'Update session';
-		$this->endpoint  = "/v1/payment-sessions/$session_id";
+		$this->log_title             = 'Update session';
+		$this->arguments['function'] = 'updateCheckout';
 	}
 
 	/**
@@ -29,14 +29,18 @@ class UpdateSession extends POST {
 		$cart = new Cart();
 
 		return array(
-			'country'                 => WC()->customer->get_billing_country(),
-			'currency'                => get_woocommerce_currency(),
-			'locale'                  => str_replace( '_', '-', get_locale() ),
-			'orderLines'              => $cart->get_order_lines(),
-			'reference'               => Qvickly_Payments()->session()->get_reference(),
-			'totalOrderAmount'        => $cart->get_total(),
-			'totalOrderAmountExclVat' => $cart->get_total() - $cart->get_total_tax(),
-			'totalOrderVatAmount'     => $cart->get_total_tax(),
+			'CheckoutData' => array(
+				'terms'         => get_permalink( wc_terms_and_conditions_page_id() ),
+				'privacyPolicy' => get_permalink( wc_privacy_policy_page_id() ),
+			),
+			'PaymentData'  => array(
+				'currency' => get_woocommerce_currency(),
+				'language' => explode( '_', get_locale() )[0] ?? 'en',
+				'country'  => $cart->get_country(),
+				'orderid'  => Qvickly_Payments()->session()->get_reference(),
+			),
+			'Articles'     => $cart->get_articles(),
+			'Cart'         => $cart->get_cart(),
 		);
 	}
 }
