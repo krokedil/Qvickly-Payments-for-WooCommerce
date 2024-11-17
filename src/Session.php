@@ -156,6 +156,13 @@ class Session {
 	 * @return string
 	 */
 	public function get_reference() {
+		$this->resume_session();
+
+		if ( empty( $this->session_reference ) ) {
+			$this->session_reference = wp_generate_uuid4();
+			$this->wc_update_session();
+		}
+
 		return $this->session_reference;
 	}
 
