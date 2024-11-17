@@ -78,6 +78,16 @@ class Settings {
 				'placeholder' => __( 'Choose your payment method in our checkout.', 'qvickly-payments-for-woocommerce' ),
 				'class'       => 'redirect-only',
 			),
+			'payment_method'           => array(
+				'title'       => __( 'Payment method', 'qvickly-payments-for-woocommerce' ),
+				'type'        => 'select',
+				'default'     => '2048',
+				'description' => __( 'The payment method to show to the customer.', 'qvickly-payments-for-woocommerce' ),
+				'options'     => array(
+					'8'    => __( 'Card', 'qvickly-payments-for-woocommerce' ),
+					'2048' => __( 'myQvickly', 'qvickly-payments-for-woocommerce' ),
+				),
+			),
 			'company_number_placement' => array(
 				'title'       => __( 'Company number field', 'qvickly-payments-for-woocommerce' ),
 				'type'        => 'select',
