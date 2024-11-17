@@ -9,23 +9,32 @@ use KrokedilQvicklyPaymentsDeps\Krokedil\WpApi\Request;
  * Base request class.
  */
 abstract class BaseRequest extends Request {
+
+	protected $is_test_mode;
+	protected $api_id;
+	protected $api_key;
+
 	/**
 	 * BaseRequest constructor.
 	 *
 	 * @param array $args The request args.
 	 */
 	public function __construct( $args = array() ) {
-		$settings = get_option( 'woocommerce_qvickly_payments_settings', array() );
-		$config   = array(
+		$this->settings = get_option( 'woocommerce_qvickly_payments_settings', array() );
+		$config         = array(
 			'slug'               => 'qvickly_payments',
 			'plugin_version'     => QVICKLY_PAYMENTS_VERSION,
 			'plugin_short_name'  => 'QP',
-			'logging_enabled'    => wc_string_to_bool( $settings['logging'] ),
-			'extended_debugging' => wc_string_to_bool( $settings['extended_logging'] ),
+			'logging_enabled'    => wc_string_to_bool( $this->settings['logging'] ),
+			'extended_debugging' => wc_string_to_bool( $this->settings['extended_logging'] ),
 			'base_url'           => 'https://api.qvickly.io',
 		);
 
-		parent::__construct( $config, $settings, $args );
+		$this->is_test_mode = $this->settings['test_mode'] ? 'true' : 'false';
+		$this->api_id       = $this->settings['api_id'];
+		$this->api_key      = $this->settings['api_key'];
+
+		parent::__construct( $config, $this->settings, $args );
 	}
 
 	/**
