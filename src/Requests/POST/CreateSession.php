@@ -3,6 +3,7 @@ namespace Krokedil\Qvickly\Payments\Requests\POST;
 
 use Krokedil\Qvickly\Payments\Requests\POST;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Cart;
+use Krokedil\Qvickly\Payments\Requests\Helpers\Store;
 
 /**
  * Create checkout session request class.
@@ -15,7 +16,7 @@ class CreateSession extends POST {
 	public function __construct() {
 		parent::__construct();
 		$this->log_title             = 'Create session';
-		$this->arguments['function'] = 'initCheckout';
+		$this->arguments['function'] = 'addPayment';
 	}
 
 	/**
@@ -26,22 +27,31 @@ class CreateSession extends POST {
 	public function get_body() {
 		$cart = new Cart();
 
+		$address        = $cart->get_address();
+		$language       = Store::get_language();
+		$payment_method = absint( $this->settings['payment_method'] );
+
 		return array(
-			'CheckoutData' => array(
-				'terms'         => get_permalink( wc_terms_and_conditions_page_id() ),
-				'privacyPolicy' => get_permalink( wc_privacy_policy_page_id() ),
-			),
-			'PaymentData'  => array(
+			'PaymentData' => array(
+				'method'      => $payment_method,
 				'currency'    => get_woocommerce_currency(),
-				'language'    => explode( '_', get_locale() )[0] ?? 'en',
+				'language'    => false !== $language ? $language : 'en',
 				'country'     => $cart->get_country(),
 				'orderid'     => Qvickly_Payments()->session()->get_reference(),
 				'accepturl'   => $cart->get_confirmation_url(),
 				'cancelurl'   => wc_get_checkout_url(),
 				'callbackurl' => $cart->get_notification_url(),
 			),
-			'Articles'     => $cart->get_articles(),
-			'Cart'         => $cart->get_cart(),
+			'PaymentInfo' => array(
+				'paymentterms' => get_permalink( wc_terms_and_conditions_page_id() ),
+			),
+			'Card'        => array(),
+			'Customer'    => array(
+				'billing'  => $address['billing'],
+				'shipping' => $address['shipping'],
+			),
+			'Articles'    => $cart->get_articles(),
+			'Cart'        => $cart->get_cart(),
 		);
 	}
 }

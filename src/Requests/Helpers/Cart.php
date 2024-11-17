@@ -157,6 +157,39 @@ class Cart extends CartBase {
 	}
 
 	/**
+	 * Get the customer address intended for Qvickly API consumption.
+	 *
+	 * @return array `[billing, shipping]`
+	 */
+	public function get_address() {
+		$customer = $this->cart->get_customer();
+
+		return array(
+			'billing'  => array(
+				'email'     => $customer->get_email(),
+				'firstname' => $customer->get_first_name(),
+				'lastname'  => $customer->get_last_name(),
+				'zip'       => $customer->get_postcode(),
+				'city'      => $customer->get_city(),
+				'phone'     => $customer->get_billing_phone(),
+				'country'   => $customer->get_country(),
+				'street'    => $customer->get_address(),
+				'street2'   => $customer->get_address_2(),
+			),
+			'shipping' => array(
+				'firstname' => $customer->get_first_name(),
+				'lastname'  => $customer->get_last_name(),
+				'zip'       => $customer->get_postcode(),
+				'city'      => $customer->get_city(),
+				'phone'     => $customer->get_billing_phone(),
+				'country'   => $customer->get_country(),
+				'street'    => $customer->get_address(),
+				'street2'   => $customer->get_address_2(),
+			),
+		);
+	}
+
+	/**
 	 * Get the confirmation URL.
 	 *
 	 * This is the URL the customer is redirected to after a successful payment.
