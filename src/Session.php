@@ -106,7 +106,7 @@ class Session {
 
 		// The session has been set or modified, we must update the existing session or create one if it doesn't already exist.
 		if ( $this->gateway_session ) {
-			$result = Qvickly_Payments()->api()->update_session( $this->get_id() );
+			$result = Qvickly_Payments()->api()->update_session();
 			return $this->process_result( $result, $order );
 		}
 

@@ -31,12 +31,10 @@ class API {
 	/**
 	 * Update a Qvickly session.
 	 *
-	 * @param string $session_id The session ID.
-	 *
 	 * @return \WP_Error|array
 	 */
-	public function update_session( $session_id ) {
-		$request  = new Requests\POST\UpdateSession( $session_id );
+	public function update_session() {
+		$request  = new Requests\POST\UpdateSession();
 		$response = $request->request();
 
 		return $this->check_for_api_error( $response );

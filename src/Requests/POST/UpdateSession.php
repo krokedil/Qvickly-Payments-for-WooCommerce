@@ -3,6 +3,7 @@ namespace Krokedil\Qvickly\Payments\Requests\POST;
 
 use Krokedil\Qvickly\Payments\Requests\POST;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Cart;
+use Krokedil\Qvickly\Payments\Requests\Helpers\Store;
 
 /**
  * Update checkout session request class.
@@ -14,10 +15,10 @@ class UpdateSession extends POST {
 	 *
 	 * @param string $session_id The Qvickly session ID.
 	 */
-	public function __construct( $session_id ) {
+	public function __construct() {
 		parent::__construct();
 		$this->log_title             = 'Update session';
-		$this->arguments['function'] = 'updateCheckout';
+		$this->arguments['function'] = 'updatePayment';
 	}
 
 	/**
@@ -28,19 +29,31 @@ class UpdateSession extends POST {
 	public function get_body() {
 		$cart = new Cart();
 
+		$address        = $cart->get_address();
+		$language       = Store::get_language();
+		$payment_method = absint( $this->settings['payment_method'] );
+
 		return array(
-			'CheckoutData' => array(
-				'terms'         => get_permalink( wc_terms_and_conditions_page_id() ),
-				'privacyPolicy' => get_permalink( wc_privacy_policy_page_id() ),
+			'PaymentData' => array(
+				'method'      => $payment_method,
+				'currency'    => get_woocommerce_currency(),
+				'language'    => false !== $language ? $language : 'en',
+				'country'     => $cart->get_country(),
+				'orderid'     => Qvickly_Payments()->session()->get_reference(),
+				'accepturl'   => $cart->get_confirmation_url(),
+				'cancelurl'   => wc_get_checkout_url(),
+				'callbackurl' => $cart->get_notification_url(),
 			),
-			'PaymentData'  => array(
-				'currency' => get_woocommerce_currency(),
-				'language' => explode( '_', get_locale() )[0] ?? 'en',
-				'country'  => $cart->get_country(),
-				'orderid'  => Qvickly_Payments()->session()->get_reference(),
+			'PaymentInfo' => array(
+				'paymentterms' => get_permalink( wc_terms_and_conditions_page_id() ),
 			),
-			'Articles'     => $cart->get_articles(),
-			'Cart'         => $cart->get_cart(),
+			'Card'        => array(),
+			'Customer'    => array(
+				'billing'  => $address['billing'],
+				'shipping' => $address['shipping'],
+			),
+			'Articles'    => $cart->get_articles(),
+			'Cart'        => $cart->get_cart(),
 		);
 	}
 }
