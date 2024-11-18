@@ -3,7 +3,6 @@ namespace Krokedil\Qvickly\Payments\Requests\Helpers;
 
 use Krokedil\Qvickly\Payments\Callback;
 use KrokedilQvicklyPaymentsDeps\Krokedil\WooCommerce\Cart\Cart as CartBase;
-use KrokedilQvicklyPaymentsDeps\Krokedil\WooCommerce as KrokedilWC;
 
 /**
  * Class Cart
@@ -42,8 +41,8 @@ class Cart extends CartBase {
 
 	public function get_cart() {
 		$cart = array(
-			'total' => array(
-				'withouttax' => $this->get_subtotal(),
+			'Total' => array(
+				'withouttax' => absint( $this->get_total() - $this->get_total_tax() ),
 				'tax'        => $this->get_total_tax(),
 				'withtax'    => $this->get_total(),
 			),
@@ -55,7 +54,7 @@ class Cart extends CartBase {
 			$chosen_shipping = reset( $maybe_chosen_shipping );
 			foreach ( $shippings as $shipping ) {
 				if ( $chosen_shipping === $shipping->get_sku() ) {
-					$cart['shipping'] = array(
+					$cart['Shipping'] = array(
 						'withouttax' => $shipping->get_subtotal_amount(),
 						'taxrate'    => $shipping->get_tax_rate(),
 					);
