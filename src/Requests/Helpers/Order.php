@@ -47,52 +47,6 @@ class Order extends BaseOrder {
 	}
 
 	/**
-	 * Get the total amount of the item.
-	 *
-	 * @param KrokedilWC\OrderLineData $item Item.
-	 * @return float
-	 */
-	private function get_total_amount( $item ) {
-		return $item->get_total_amount() + $item->get_total_tax_amount();
-	}
-
-	/**
-	 * Get the order lines.
-	 *
-	 * @return array
-	 */
-	public function get_order_lines() {
-		$order_lines = array();
-
-		foreach ( $this->get_line_items() as $item ) {
-			$order_lines[] = array(
-				'description'    => $item->get_name(),
-				'quantity'       => $item->get_quantity(),
-				'reference'      => $item->get_sku(),
-				'totalAmount'    => $this->get_total_amount( $item ),
-				'totalVatAmount' => $item->get_total_tax_amount(),
-				'type'           => $this->get_type( $item ),
-				'vat'            => $item->get_tax_rate(),
-			);
-		}
-
-		foreach ( $this->get_line_shipping() as $item ) {
-			$order_lines[] = array(
-				'description'    => $item->get_name(),
-				'quantity'       => $item->get_quantity(),
-				'reference'      => $item->get_sku(),
-				'totalAmount'    => $this->get_total_amount( $item ),
-				'totalVatAmount' => $item->get_total_tax_amount(),
-				'type'           => $this->get_type( $item ),
-				'vat'            => $item->get_tax_rate(),
-			);
-
-		}
-
-		return $order_lines;
-	}
-
-	/**
 	 * Get the country.
 	 *
 	 * @return string
