@@ -9,6 +9,7 @@ function customize_php_scoper_config( array $config ): array {
 	$config['exclude-constants'][] = 'QVICKLY_PAYMENTS_PLUGIN_URL';
 	$config['exclude-classes'][] = 'WooCommerce';
 	$config['exclude-classes'][] = 'WC_Product';
+	$config['exclude-classes'][] = 'WP_Error';
 
 	$functions = array(
 		'Qvickly_Payments',
