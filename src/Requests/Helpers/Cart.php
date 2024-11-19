@@ -95,29 +95,33 @@ class Cart extends CartBase {
 	public function get_address() {
 		$customer = $this->cart->get_customer();
 
-		return array(
-			'billing'  => array(
-				'email'     => $customer->get_email(),
-				'firstname' => $customer->get_first_name(),
-				'lastname'  => $customer->get_last_name(),
-				'zip'       => $customer->get_postcode(),
-				'city'      => $customer->get_city(),
-				'phone'     => $customer->get_billing_phone(),
-				'country'   => $customer->get_country(),
-				'street'    => $customer->get_address(),
-				'street2'   => $customer->get_address_2(),
-			),
-			'shipping' => array(
-				'firstname' => $customer->get_first_name(),
-				'lastname'  => $customer->get_last_name(),
-				'zip'       => $customer->get_postcode(),
-				'city'      => $customer->get_city(),
-				'phone'     => $customer->get_billing_phone(),
-				'country'   => $customer->get_country(),
-				'street'    => $customer->get_address(),
-				'street2'   => $customer->get_address_2(),
-			),
+		$billing = array(
+			'email'     => $customer->get_email(),
+			'firstname' => $customer->get_first_name(),
+			'lastname'  => $customer->get_last_name(),
+			'zip'       => $customer->get_postcode(),
+			'city'      => $customer->get_city(),
+			'phone'     => $customer->get_billing_phone(),
+			'country'   => $customer->get_country(),
+			'street'    => $customer->get_address(),
+			'street2'   => $customer->get_address_2(),
 		);
+
+		$shipping = array(
+			'firstname' => $customer->get_first_name(),
+			'lastname'  => $customer->get_last_name(),
+			'zip'       => $customer->get_postcode(),
+			'city'      => $customer->get_city(),
+			'phone'     => $customer->get_billing_phone(),
+			'country'   => $customer->get_country(),
+			'street'    => $customer->get_address(),
+			'street2'   => $customer->get_address_2(),
+		);
+
+		$address['billing']  = array_filter( $billing );
+		$address['shipping'] = array_filter( $shipping );
+
+		return $address;
 	}
 
 	/**
