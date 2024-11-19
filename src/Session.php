@@ -49,14 +49,6 @@ class Session {
 	 */
 	private $session_reference = null;
 
-	/**
-	 * Payment categories.
-	 *
-	 * When the  `gateway_session` is updated, the update request doesn't include the configuration data. Therefore, we have to store it separately.
-	 *
-	 * @var array
-	 */
-	private $payment_categories = array();
 
 	/**
 	 * Class constructor.
@@ -82,7 +74,7 @@ class Session {
 		}
 
 		// Resume existing session.
-		$this->resume_session();
+		$this->resume();
 
 		// Check if we got an order.
 		$order  = $this->get_order( $order );
@@ -131,36 +123,28 @@ class Session {
 	}
 
 	/**
-	 * Get the session ID.
-	 *
-	 * If the session doesn't exist, we'll try to create it. If that fails, `null` is returned.
+	 * Get the payment number.
 	 *
 	 * @return string|null The session ID.
 	 */
-	public function get_id() {
-		return $this->gateway_session['sessionId'] ?? $this->gateway_session['id'] ?? null;
+	public function get_payment_number() {
+		return $this->gateway_session['number'] ?? null;
 	}
 
 	/**
-	 * Get the payment categories.
+	 * Create or get the WC reference for this session.
 	 *
-	 * @return array
-	 */
-	public function get_payment_categories() {
-		return $this->payment_categories;
-	}
-
-	/**
-	 * Get the session reference.
+	 * This is intended for identifying a checkout session while a WC order doesn't yet exist.
 	 *
 	 * @return string
 	 */
 	public function get_reference() {
-		$this->resume_session();
+		// Check if a session already exist. Retrieve the session reference if it does.
+		$this->resume();
 
 		if ( empty( $this->session_reference ) ) {
 			$this->session_reference = wp_generate_uuid4();
-			$this->wc_update_session();
+			$this->save();
 		}
 
 		return $this->session_reference;
@@ -172,7 +156,7 @@ class Session {
 	 * @param \WC_Order|null $order A WooCommerce order or null if only session should be cleared.
 	 * @return void
 	 */
-	public function clear_session( $order = null ) {
+	public function clear( $order = null ) {
 		if ( isset( WC()->session ) ) {
 			WC()->session->__unset( self::SESSION_KEY );
 		}
@@ -188,16 +172,15 @@ class Session {
 	 *
 	 * @return bool Whether there was a session to resume.
 	 */
-	private function resume_session() {
+	private function resume() {
 		$session = isset( WC()->session ) ? WC()->session->get( self::SESSION_KEY ) : null;
 		if ( ! empty( $session ) ) {
 			$session = json_decode( $session, true );
 
-			$this->gateway_session    = $session['gateway_session'];
-			$this->session_hash       = $session['session_hash'];
-			$this->session_country    = $session['session_country'];
-			$this->payment_categories = $session['payment_categories'];
-			$this->session_reference  = $session['session_reference'];
+			$this->gateway_session   = $session['gateway_session'];
+			$this->session_hash      = $session['session_hash'];
+			$this->session_country   = $session['session_country'];
+			$this->session_reference = $session['session_reference'];
 		}
 
 		return ! empty( $session );
@@ -278,7 +261,7 @@ class Session {
 			$hash = md5( wp_json_encode( array( $total, $billing_address, $shipping_address, $shipping_method ) ) );
 		} else {
 			// Get values to use for the combined hash calculation.
-			$total            = $order->get_total( 'kp_total' );
+			$total            = $order->get_total( 'edit' );
 			$billing_address  = $order->get_address( 'billing' );
 			$shipping_address = $order->get_address( 'shipping' );
 
@@ -304,21 +287,16 @@ class Session {
 
 		$helper = empty( $order ) ? new Cart() : new Order( $order );
 
-		$this->gateway_session = ! empty( $result ) ? $result : $this->gateway_session;
+		$this->gateway_session = ! empty( $result ) ? $result['data'] : $this->gateway_session;
 		$this->session_hash    = $this->get_hash( $order );
 		$this->session_country = $helper->get_country();
 
-		// Generate a minimum of 23-characters unique reference.
 		if ( empty( $this->session_reference ) ) {
-			$this->session_reference = wp_generate_uuid4();
-		}
-
-		if ( isset( $this->gateway_session['configuration'] ) ) {
-			$this->payment_categories = $this->gateway_session['configuration'];
+			$this->get_reference();
 		}
 
 		// Persist the session to Woo.
-		$this->wc_update_session( $order );
+		$this->save( $order );
 
 		return $result;
 	}
@@ -329,15 +307,15 @@ class Session {
 	 * @return void
 	 */
 	private function process_error() {
-		$session = Qvickly_Payments()->api()->get_session( $this->get_id() );
+		$session = Qvickly_Payments()->api()->get_session( $this->get_payment_number() );
 		if ( is_wp_error( $session ) ) {
-			$this->clear_session();
+			$this->clear();
 			return;
 		}
 
 		if ( is_checkout() && ! is_order_received_page() ) {
 			if ( 'authorized' === $session['state'] ) {
-				$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $this->get_id() );
+				$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $this->get_payment_number() );
 				$key   = $order->get_order_key();
 				if ( empty( $order ) ) {
 					$key      = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
@@ -360,8 +338,9 @@ class Session {
 				exit;
 			}
 
+			// TODO: Which state is considered expired?
 			if ( 'expired' === $session['state'] ) {
-				$this->clear_session();
+				$this->clear();
 
 				if ( isset( WC()->session ) ) {
 					WC()->session->reload_checkout = true;
@@ -371,19 +350,18 @@ class Session {
 	}
 
 	/**
-	 * Updates the session data in WooCommerce.
+	 * Saves the session data to WooCommerce Session.
 	 *
 	 * @param \WC_Order|numeric|null $order The order object or order ID. Pass `null` to retrieve session from WC_Session (default).
 	 * @return void
 	 */
-	private function wc_update_session( $order = null ) {
+	private function save( $order = null ) {
 		$session_data = wp_json_encode(
 			array(
-				'gateway_session'    => $this->gateway_session,
-				'session_hash'       => $this->session_hash,
-				'session_country'    => $this->session_country,
-				'payment_categories' => $this->payment_categories,
-				'session_reference'  => $this->session_reference,
+				'gateway_session'   => $this->gateway_session,
+				'session_hash'      => $this->session_hash,
+				'session_country'   => $this->session_country,
+				'session_reference' => $this->session_reference,
 			)
 		);
 
@@ -417,11 +395,10 @@ class Session {
 			return false;
 		}
 
-		$this->gateway_session    = $decoded_data['gateway_session'];
-		$this->session_hash       = $decoded_data['session_hash'];
-		$this->session_country    = $decoded_data['session_country'];
-		$this->payment_categories = $decoded_data['payment_categories'];
-		$this->session_reference  = $decoded_data['session_reference'];
+		$this->gateway_session   = $decoded_data['gateway_session'];
+		$this->session_hash      = $decoded_data['session_hash'];
+		$this->session_country   = $decoded_data['session_country'];
+		$this->session_reference = $decoded_data['session_reference'];
 		return true;
 	}
 }

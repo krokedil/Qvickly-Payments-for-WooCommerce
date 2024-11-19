@@ -178,7 +178,7 @@ class Gateway extends \WC_Payment_Gateway {
 
 		$order = $helper->order;
 		$order->update_meta_data( '_qvickly_reference', Qvickly_Payments()->session()->get_reference() );
-		$order->update_meta_data( '_qvickly_session_id', Qvickly_Payments()->session()->get_id() );
+		$order->update_meta_data( '_qvickly_session_id', Qvickly_Payments()->session()->get_payment_number() );
 		$order->save();
 
 		// Update the nonce only if WordPress determines it necessary, such as when a guest becomes signed in.

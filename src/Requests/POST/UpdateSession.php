@@ -35,6 +35,7 @@ class UpdateSession extends POST {
 
 		return array(
 			'PaymentData' => array(
+				'number'      => Qvickly_Payments()->session()->get_payment_number(),
 				'method'      => $payment_method,
 				'currency'    => get_woocommerce_currency(),
 				'language'    => false !== $language ? $language : 'en',

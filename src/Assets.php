@@ -44,7 +44,7 @@ class Assets {
 		// The reference is stored in the session. Create the session if necessary.
 		Qvickly_Payments()->session()->get_session();
 		$reference  = Qvickly_Payments()->session()->get_reference();
-		$session_id = Qvickly_Payments()->session()->get_id();
+		$session_id = Qvickly_Payments()->session()->get_payment_number();
 
 		$standard_woo_checkout_fields = array(
 			'billing_first_name',
