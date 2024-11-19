@@ -47,8 +47,8 @@ class CreateSession extends POST {
 			),
 			'Card'        => array(),
 			'Customer'    => array(
-				'billing'  => $address['billing'],
-				'shipping' => $address['shipping'],
+				'Billing'  => $address['billing'],
+				'Shipping' => $address['shipping'],
 			),
 			'Articles'    => $cart->get_articles(),
 			'Cart'        => $cart->get_cart(),
