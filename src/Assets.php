@@ -16,7 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Assets {
 
-	const SDK_HANDLE      = 'qvickly-payments-bootstrap';
+	const QVC_HANDLE      = 'qvickly-payments-qvc';
+	const CALLBACK_HANDLE = 'qvickly-payments-callback';
 	const CHECKOUT_HANDLE = 'qvickly-payments-for-woocommerce';
 
 	/**
@@ -72,9 +73,12 @@ class Assets {
 			'_wp_http_referer',
 		);
 
-		$src          = plugins_url( 'src/assets/js/qvickly-payments.js', QVICKLY_PAYMENTS_MAIN_FILE );
 		$dependencies = array( 'jquery' );
-		wp_register_script( self::CHECKOUT_HANDLE, $src, $dependencies, QVICKLY_PAYMENTS_VERSION, false );
+		wp_enqueue_script( self::CALLBACK_HANDLE, 'https://checkout.billmate.se/js/callback.js', $dependencies, QVICKLY_PAYMENTS_VERSION, true );
+		wp_enqueue_script( self::QVC_HANDLE, 'https://checkout.billmate.se/js/myqvc.js', array( self::CALLBACK_HANDLE ), QVICKLY_PAYMENTS_VERSION, true );
+
+		$src = plugins_url( 'src/assets/js/qvickly-payments.js', QVICKLY_PAYMENTS_MAIN_FILE );
+		wp_register_script( self::CHECKOUT_HANDLE, $src, array( self::QVC_HANDLE ), QVICKLY_PAYMENTS_VERSION, false );
 
 		$pay_for_order = is_wc_endpoint_url( 'order-pay' );
 		wp_localize_script(
@@ -103,8 +107,5 @@ class Assets {
 		);
 
 		wp_enqueue_script( self::CHECKOUT_HANDLE );
-
-		$env = wc_string_to_bool( Qvickly_Payments()->settings( 'test_mode' ) ) ? 'sandbox' : 'live';
-		wp_enqueue_script( self::SDK_HANDLE, "https://payments.$env.qvickly.com/bootstrap.js", array( self::CHECKOUT_HANDLE ), QVICKLY_PAYMENTS_VERSION, true );
 	}
 }
