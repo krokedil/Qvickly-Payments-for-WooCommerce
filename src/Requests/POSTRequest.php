@@ -7,16 +7,12 @@ use Krokedil\Qvickly\Payments\Requests\Helpers\Store;
  * POST request class.
  */
 abstract class POSTRequest extends BaseRequest {
-
 	/**
-	 * POST constructor.
+	 * The request method.
 	 *
-	 * @param array $args Arguments that should be accessible from within the request.
+	 * @var string
 	 */
-	public function __construct( $args = array() ) {
-		parent::__construct( $args );
-		$this->method = 'POST';
-	}
+	public $method = 'POST';
 
 	/**
 	 * The args second parameter in wp_remote_request.
