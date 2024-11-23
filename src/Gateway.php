@@ -48,7 +48,7 @@ class Gateway extends \WC_Payment_Gateway {
 		);
 
 		add_filter( 'wc_get_template', array( $this, 'payment_categories' ), 10, 3 );
-		add_action( 'woocommerce_thankyou', array( $this, 'redirect_from_checkout' ) );
+		add_action( 'init', array( $this, 'maybe_confirm_order' ), 999 );
 
 		// Process the checkout before the payment is processed.
 		add_action( 'woocommerce_checkout_process', array( $this, 'process_checkout' ) );
@@ -310,14 +310,13 @@ class Gateway extends \WC_Payment_Gateway {
 	}
 
 	/**
-	 * Processes the payment on the thankyou page.
+	 * Processes the order confirmation if the required parameters are set.
 	 *
-	 * @hook woocommerce_thankyou
+	 * Since the `woocommerce_thankyou` hook might be omitted by certain themes, we've opted to use the init hook instead.
 	 *
-	 * @param int $order_id The WC order id.
 	 * @return void
 	 */
-	public function redirect_from_checkout( $order_id ) {
+	public function maybe_confirm_order() {
 		$key     = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$gateway = filter_input( INPUT_GET, 'gateway', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
@@ -325,7 +324,8 @@ class Gateway extends \WC_Payment_Gateway {
 			return;
 		}
 
-		$context = array(
+		$order_id = wc_get_order_id_by_order_key( $key );
+		$context  = array(
 			'filter'   => current_filter(),
 			'function' => __FUNCTION__,
 			'order_id' => $order_id,
@@ -345,6 +345,6 @@ class Gateway extends \WC_Payment_Gateway {
 		}
 
 		$this->confirm_order( $order, $context );
-		Qvickly_Payments()->session()->clear_session( $order );
+		Qvickly_Payments()->session()->clear( $order );
 	}
 }
