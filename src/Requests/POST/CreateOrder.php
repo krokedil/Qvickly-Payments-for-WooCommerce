@@ -3,6 +3,7 @@ namespace Krokedil\Qvickly\Payments\Requests\POSTRequest;
 
 use Krokedil\Qvickly\Payments\Requests\POSTRequest;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Order;
+use Krokedil\Qvickly\Payments\Requests\Helpers\Store;
 
 /**
  * Create order request class.
@@ -37,7 +38,7 @@ class CreateOrder extends POSTRequest {
 			'country'                 => WC()->customer->get_billing_country(),
 			'currency'                => $order->get_currency(),
 			'customer'                => $order->get_customer(),
-			'locale'                  => str_replace( '_', '-', get_locale() ),
+			'locale'                  => Store::get_locale(),
 			'orderLines'              => $order->get_order_lines(),
 			'reference'               => $order->get_reference(),
 			'totalOrderAmount'        => $order->get_total(),

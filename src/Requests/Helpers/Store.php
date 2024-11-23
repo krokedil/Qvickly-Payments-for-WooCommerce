@@ -25,4 +25,21 @@ class Store {
 
 		return false;
 	}
+
+	/**
+	 * Get the locale.
+	 *
+	 * @return string
+	 */
+	public static function get_locale() {
+		$locale = get_locale();
+		switch ( $locale ) {
+			case 'fi':
+				$locale = 'fi_fi';
+				break;
+			default:
+				break;
+		}
+		return str_replace( '_', '-', $locale );
+	}
 }
