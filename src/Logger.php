@@ -45,7 +45,7 @@ class Logger {
 	 *    - `debug`: Debug-level messages.
 	 * @param array  $additional_context Additional context to log.
 	 */
-	public function log( $message, $level = 'debug', $additional_context = array() ) {
+	public function log( $message, $level = 'info', $additional_context = array() ) {
 		$context = array( 'source' => 'qvickly_payments' );
 
 		if ( ! empty( $additional_context ) ) {
