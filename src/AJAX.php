@@ -45,7 +45,7 @@ class AJAX {
 			wp_send_json_error( 'bad_nonce' );
 		}
 
-		$message = sanitize_text_field( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		$message = '[AJAX]: ' . sanitize_text_field( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
 		$prefix  = sanitize_text_field( filter_input( INPUT_POST, 'reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
 		$level   = sanitize_text_field( filter_input( INPUT_POST, 'level', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) ?? 'notice';
 		if ( ! empty( $message ) ) {
@@ -99,7 +99,7 @@ class AJAX {
 			'order_key'  => $order_key,
 			'payment_id' => $result['orderId'],
 		);
-		Qvickly_Payments()->logger()->debug( 'Redirecting to ' . $redirect_to, $context );
+		Qvickly_Payments()->logger()->debug( '[AJAX]: Redirecting to ' . $redirect_to, $context );
 
 		wp_send_json_success( array( 'location' => $redirect_to ) );
 	}
@@ -135,7 +135,7 @@ class AJAX {
 			'order_id'  => $order_id,
 			'order_key' => $order_key,
 		);
-		Qvickly_Payments()->logger()->debug( 'Redirecting to ' . $redirect_to, $context );
+		Qvickly_Payments()->logger()->debug( '[AJAX]: Redirecting to ' . $redirect_to, $context );
 		wp_send_json_success( array( 'location' => $redirect_to ) );
 	}
 }

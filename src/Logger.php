@@ -46,10 +46,7 @@ class Logger {
 	 * @param array  $additional_context Additional context to log.
 	 */
 	public function log( $message, $level = 'debug', $additional_context = array() ) {
-		$context = array(
-			'source'    => 'qvickly_payments',
-			'reference' => Qvickly_Payments()->session()->get_reference(),
-		);
+		$context = array( 'source' => 'qvickly_payments' );
 
 		if ( ! empty( $additional_context ) ) {
 			$context = array_merge( $context, $additional_context );

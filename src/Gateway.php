@@ -250,7 +250,7 @@ class Gateway extends \WC_Payment_Gateway {
 		$qvickly_order = Qvickly_Payments()->api()->get_session( $session_id );
 		if ( is_wp_error( $qvickly_order ) ) {
 			$context['sessionId'] = $session_id;
-			Qvickly_Payments()->logger()->error( 'Failed to get Qvickly order. Unrecoverable error, aborting.', $context );
+			Qvickly_Payments()->logger()->error( '[CONFIRM]: Failed to get Qvickly order. Unrecoverable error, aborting.', $context );
 			return;
 		}
 
@@ -261,7 +261,7 @@ class Gateway extends \WC_Payment_Gateway {
 		} elseif ( 'awaitingSignatory' === $qvickly_order['state'] ) {
 			$order->update_status( 'on-hold', __( 'Awaiting payment confirmation from Qvickly.', 'qvickly-payments-for-woocommerce' ) );
 		} else {
-			Qvickly_Payments()->logger()->warning( "Unknown order state: {$qvickly_order['state']}", $context );
+			Qvickly_Payments()->logger()->warning( "[CONFIRM]: Unknown order state: {$qvickly_order['state']}", $context );
 		}
 
 		$order->set_payment_method( $this->id );
@@ -331,16 +331,16 @@ class Gateway extends \WC_Payment_Gateway {
 			'order_id' => $order_id,
 			'key'      => $key,
 		);
-		Qvickly_Payments()->logger()->debug( 'Customer refreshed or redirected to thankyou page.', $context );
+		Qvickly_Payments()->logger()->debug( '[MAYBE_CONFIRM]: Customer refreshed or redirected to thankyou page.', $context );
 
 		$order = wc_get_order( $order_id );
 		if ( ! hash_equals( $order->get_order_key(), $key ) ) {
-			Qvickly_Payments()->logger()->error( 'Order key mismatch.', $context );
+			Qvickly_Payments()->logger()->error( '[MAYBE_CONFIRM]: Order key mismatch.', $context );
 			return;
 		}
 
 		if ( ! empty( $order->get_date_paid() ) ) {
-			Qvickly_Payments()->logger()->debug( 'Order already paid. Customer probably refreshed thankyou page.', $context );
+			Qvickly_Payments()->logger()->debug( '[MAYBE_CONFIRM]: Order already paid. Customer probably refreshed thankyou page.', $context );
 			return;
 		}
 
