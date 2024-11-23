@@ -4,7 +4,7 @@ namespace Krokedil\Qvickly\Payments\Requests;
 /**
  * GET request class.
  */
-abstract class GET extends BaseRequest {
+abstract class GETRequest extends BaseRequest {
 
 	/**
 	 * GET constructor.

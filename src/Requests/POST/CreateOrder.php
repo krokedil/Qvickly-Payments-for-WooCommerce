@@ -1,7 +1,7 @@
 <?php
-namespace Krokedil\Qvickly\Payments\Requests\POST;
+namespace Krokedil\Qvickly\Payments\Requests\POSTRequest;
 
-use Krokedil\Qvickly\Payments\Requests\POST;
+use Krokedil\Qvickly\Payments\Requests\POSTRequest;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Order;
 
 /**
@@ -9,7 +9,7 @@ use Krokedil\Qvickly\Payments\Requests\Helpers\Order;
  *
  * Acknowledges an order.
  */
-class CreateOrder extends POST {
+class CreateOrder extends POSTRequest {
 
 	/**
 	 * CreateSession constructor.

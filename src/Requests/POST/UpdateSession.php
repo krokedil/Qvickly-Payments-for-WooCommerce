@@ -1,14 +1,14 @@
 <?php
-namespace Krokedil\Qvickly\Payments\Requests\POST;
+namespace Krokedil\Qvickly\Payments\Requests\POSTRequest;
 
-use Krokedil\Qvickly\Payments\Requests\POST;
+use Krokedil\Qvickly\Payments\Requests\POSTRequest;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Cart;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Store;
 
 /**
  * Update checkout session request class.
  */
-class UpdateSession extends POST {
+class UpdateSession extends POSTRequest {
 
 	/**
 	 * UpdateSession constructor.

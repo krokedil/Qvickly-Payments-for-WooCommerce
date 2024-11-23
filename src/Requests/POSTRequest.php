@@ -6,7 +6,7 @@ use Krokedil\Qvickly\Payments\Requests\Helpers\Store;
 /**
  * POST request class.
  */
-abstract class POST extends BaseRequest {
+abstract class POSTRequest extends BaseRequest {
 
 	/**
 	 * POST constructor.
