@@ -22,7 +22,7 @@ class API {
 	 * @return \WP_Error|array
 	 */
 	public function create_session() {
-		$request  = new Requests\POSTRequest\CreateSession();
+		$request  = new Requests\POST\CreateSession();
 		$response = $request->request();
 
 		return $this->check_for_api_error( $response );
@@ -34,7 +34,7 @@ class API {
 	 * @return \WP_Error|array
 	 */
 	public function update_session() {
-		$request  = new Requests\POSTRequest\UpdateSession();
+		$request  = new Requests\POST\UpdateSession();
 		$response = $request->request();
 
 		return $this->check_for_api_error( $response );
@@ -51,7 +51,7 @@ class API {
 	 * @return \WP_Error|array
 	 */
 	public function create_order( $order_id, $auth_token ) {
-		$request  = new Requests\POSTRequest\CreateOrder( $order_id, $auth_token );
+		$request  = new Requests\POST\CreateOrder( $order_id, $auth_token );
 		$response = $request->request();
 
 		return $this->check_for_api_error( $response );

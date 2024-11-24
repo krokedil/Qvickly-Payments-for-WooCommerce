@@ -1,5 +1,5 @@
 <?php
-namespace Krokedil\Qvickly\Payments\Requests\POSTRequest;
+namespace Krokedil\Qvickly\Payments\Requests\POST;
 
 use Krokedil\Qvickly\Payments\Requests\POSTRequest;
 use Krokedil\Qvickly\Payments\Requests\Helpers\Cart;
