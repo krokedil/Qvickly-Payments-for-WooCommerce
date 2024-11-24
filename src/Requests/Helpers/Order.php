@@ -28,25 +28,6 @@ class Order extends BaseOrder {
 	}
 
 	/**
-	 * Get the Qvickly type mapping of the item.
-	 *
-	 * @param KrokedilWC\OrderLineData $item Item.
-	 * @return string
-	 */
-	private function get_type( $item ) {
-		$type = $item->get_type();
-		switch ( $type ) {
-			case 'simple':
-			case 'variation':
-				return 'physical';
-			case 'shipping':
-				return 'shippingFee';
-			default:
-				return $type;
-		}
-	}
-
-	/**
 	 * Get the country.
 	 *
 	 * @return string
