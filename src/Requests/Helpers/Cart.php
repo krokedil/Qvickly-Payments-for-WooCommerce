@@ -118,10 +118,10 @@ class Cart extends CartBase {
 			'street2'   => $customer->get_address_2(),
 		);
 
-		$address['billing']  = array_filter( $billing );
-		$address['shipping'] = array_filter( $shipping );
-
-		return $address;
+		return array(
+			'billing'  => $billing,
+			'shipping' => $shipping,
+		);
 	}
 
 	/**
