@@ -186,7 +186,6 @@ class Gateway extends \WC_Payment_Gateway {
 			'changePaymentMethodNonce' => wp_create_nonce( 'qvickly_payments_change_payment_method' ),
 			'logToFileNonce'           => wp_create_nonce( 'qvickly_payments_wc_log_js' ),
 			'createOrderNonce'         => wp_create_nonce( 'qvickly_payments_create_order' ),
-			'pendingPaymentNonce'      => wp_create_nonce( 'qvicklyy_payments_pending_payment' ),
 		);
 
 		return array(

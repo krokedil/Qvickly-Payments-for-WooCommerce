@@ -92,8 +92,6 @@ class Assets {
 				'logToFileUrl'              => \WC_AJAX::get_endpoint( 'qvickly_payments_wc_log_js' ),
 				'createOrderNonce'          => wp_create_nonce( 'qvickly_payments_create_order' ),
 				'createOrderUrl'            => \WC_AJAX::get_endpoint( 'qvickly_payments_create_order' ),
-				'pendingPaymentNonce'       => wp_create_nonce( 'qvickly_payments_pending_payment' ),
-				'pendingPaymentUrl'         => \WC_AJAX::get_endpoint( 'qvickly_payments_pending_payment' ),
 				'payForOrder'               => $pay_for_order,
 				'standardWooCheckoutFields' => $standard_woo_checkout_fields,
 				'submitOrderUrl'            => \WC_AJAX::get_endpoint( 'checkout' ),

@@ -15,15 +15,14 @@ class CreateOrder extends POSTRequest {
 	/**
 	 * CreateSession constructor.
 	 *
-	 * @param int    $order_id   The WC order ID.
-	 * @param string $auth_token The Qvickly auth token.
+	 * @param int $order_id   The Qvickly Payments session ID.
 	 */
-	public function __construct( $order_id, $auth_token ) {
+	public function __construct( $session_id ) {
 		$args = get_defined_vars();
 
 		parent::__construct( $args );
-		$this->log_title = 'Create order';
-		$this->endpoint  = "/v1/authorization-tokens/{$auth_token}/order";
+		$this->log_title             = 'Create order';
+		$this->arguments['function'] = 'activatePayment';
 	}
 
 	/**
@@ -32,18 +31,8 @@ class CreateOrder extends POSTRequest {
 	 * @return array
 	 */
 	public function get_body() {
-		$order = new Order( $this->arguments['order_id'] );
-
 		return array(
-			'country'                 => WC()->customer->get_billing_country(),
-			'currency'                => $order->get_currency(),
-			'customer'                => $order->get_customer(),
-			'locale'                  => Store::get_locale(),
-			'orderLines'              => $order->get_order_lines(),
-			'reference'               => $order->get_reference(),
-			'totalOrderAmount'        => $order->get_total(),
-			'totalOrderAmountExclVat' => $order->get_total() - $order->get_total_tax(),
-			'totalOrderVatAmount'     => $order->get_total_tax(),
+			'number' => $this->arguments['session_id'],
 		);
 	}
 }

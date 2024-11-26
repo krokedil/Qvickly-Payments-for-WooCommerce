@@ -55,31 +55,6 @@ jQuery( function ( $ ) {
         },
 
         /**
-         * Handles the process of proceeding with Qvickly payment for an order.
-         *
-         * @param {string} orderId - The key of the order.
-         * @param {Object} customerData - The customer data.
-         * @returns {void}
-         */
-        handleProceedWithQvickly: async ( orderId, customerData ) => {
-            try {
-                QvicklyPayments.blockUI()
-
-                const authArgs = { customer: { ...customerData }, sessionId: QvicklyPayments.sessionId }
-
-                if ( authResponse.state === "authorized" ) {
-                    QvicklyPayments.createOrder( authResponse, orderId )
-                } else if ( authResponse.state === "awaitingSignatory" ) {
-                    QvicklyPayments.createPendingOrder( authResponse, orderId )
-                }
-            } catch ( error ) {
-                console.error( error )
-            } finally {
-                QvicklyPayments.unblockUI()
-            }
-        },
-
-        /**
          * Prints a notice on the checkout page.
          * @param {string} message - The message to be displayed.
          * @returns {void}
@@ -232,7 +207,7 @@ jQuery( function ( $ ) {
                                 `Successfully placed order ${ orderId }. Sending "shouldProceed: true".`,
                             )
 
-                            QvicklyPayments.handleProceedWithQvickly( orderId, customer )
+                            QvicklyPayments.createOrder( orderId, QvicklyPayments.sessionId )
                         } else {
                             console.warn( "AJAX request succeeded, but the Woo order was not created.", data )
                             throw "SubmitOrder failed"
@@ -265,23 +240,11 @@ jQuery( function ( $ ) {
         /**
          * Informs Qvickly to proceed with creating the order in their system.
          *
-         * This is done after the payment has been authorized, and we've verified that the order was created in WooCommerce.
-         *
-         * @throws {Error} If the authResponse state is not "authorized".
-         *
-         * @param {object} authResponse The response from the authorization request.
          * @param {string} orderId The WC order ID.
+         * @param {string} sessionId The Qvickly Payments session ID.
          * @returns {void}
          */
-        createOrder: ( authResponse, orderId ) => {
-            if ( authResponse.state !== "authorized" ) {
-                throw new Error(
-                    `createOrder was called with an invalid state. Received ${ authResponse.state }, expected 'authorized'.`,
-                )
-            }
-
-            const authToken = authResponse.authorizationToken
-            const { state } = authResponse
+        createOrder: ( orderId, sessionId ) => {
             const { createOrderUrl, createOrderNonce } = QvicklyPayments.params
 
             $.ajax( {
@@ -289,9 +252,8 @@ jQuery( function ( $ ) {
                 url: createOrderUrl,
                 dataType: "json",
                 data: {
-                    state,
                     order_key: orderId,
-                    auth_token: authToken,
+                    session_id: sessionId,
                     nonce: createOrderNonce,
                 },
                 success: ( data ) => {
@@ -305,51 +267,6 @@ jQuery( function ( $ ) {
                     console.debug( "Response:", jqXHR.responseText )
 
                     submitOrderFail( "createOrder", "The payment was successful, but the order could not be created." )
-                },
-            } )
-        },
-
-        /**
-         * Informs Qvickly to proceed with creating the pending payment order in their system.
-         *
-         * This is done after the payment has been authorized, and we've verified that the order was created in WooCommerce.
-         *
-         * @throws {Error} If the authResponse state is not "awaitingSignatory".
-         *
-         * @param {string} orderId The WC order ID.
-         * @returns {void}
-         */
-        createPendingOrder: ( authResponse, orderId ) => {
-            if ( authResponse.state !== "awaitingSignatory" ) {
-                throw new Error(
-                    `createPendingOrder was called with an invalid state. Received ${ authResponse.state }, expected 'awaitingSignatory'.`,
-                )
-            }
-
-            const { pendingPaymentUrl, pendingPaymentNonce } = QvicklyPayments.params
-
-            $.ajax( {
-                type: "POST",
-                url: pendingPaymentUrl,
-                dataType: "json",
-                data: {
-                    order_key: orderId,
-                    nonce: pendingPaymentNonce,
-                },
-                success: ( data ) => {
-                    const {
-                        data: { location },
-                    } = data
-                    window.location = location
-                },
-                error: ( jqXHR, textStatus, errorThrown ) => {
-                    console.debug( "Error:", textStatus, errorThrown )
-                    console.debug( "Response:", jqXHR.responseText )
-
-                    QvicklyPayments.submitOrderFail(
-                        "pendingPayment",
-                        "The payment is pending payment. Failed to redirect to order received page.",
-                    )
                 },
             } )
         },

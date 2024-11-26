@@ -45,13 +45,12 @@ class API {
 	 *
 	 * This can be considered acknowledging an order.
 	 *
-	 * @param int    $order_id   The WC order ID.
-	 * @param string $auth_token The Qvickly auth token.
+	 * @param int $session_id   The Qvickly Payments session ID.
 	 *
 	 * @return \WP_Error|array
 	 */
-	public function create_order( $order_id, $auth_token ) {
-		$request  = new Requests\POST\CreateOrder( $order_id, $auth_token );
+	public function create_order( $session_id ) {
+		$request  = new Requests\POST\CreateOrder( $session_id );
 		$response = $request->request();
 
 		return $this->check_for_api_error( $response );
