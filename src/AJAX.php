@@ -40,10 +40,7 @@ class AJAX {
 	 * @return void
 	 */
 	public static function qvickly_payments_wc_log_js() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'qvickly_payments_wc_log_js' ) ) {
-			wp_send_json_error( 'bad_nonce' );
-		}
+		check_ajax_referer( 'qvickly_payments_wc_log_js', 'nonce' );
 
 		$message = '[AJAX]: ' . sanitize_text_field( filter_input( INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
 		$prefix  = sanitize_text_field( filter_input( INPUT_POST, 'reference', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
@@ -61,22 +58,19 @@ class AJAX {
 	 * @return void
 	 */
 	public static function qvickly_payments_create_order() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'qvickly_payments_create_order' ) ) {
-			wp_send_json_error( 'bad_nonce' );
-		}
+		check_ajax_referer( 'qvickly_payments_create_order', 'nonce' );
 
-		$auth_token = filter_input( INPUT_POST, 'auth_token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$order_key  = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$session_id = filter_input( INPUT_POST, 'session_id', FILTER_SANITIZE_NUMBER_INT );
+		$order_key  = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_SPECIAL_CHARS );
 
-		if ( empty( $auth_token ) || empty( $order_key ) ) {
-			wp_send_json_error( 'Missing params. Received: ' . wp_json_encode( $auth_token, $order_key ) );
+		if ( empty( $session_id ) || empty( $order_key ) ) {
+			wp_send_json_error( 'Missing params. Received: ' . wp_json_encode( $session_id ) );
 		}
 
 		$order_id = wc_get_order_id_by_order_key( $order_key );
 		$order    = wc_get_order( $order_id );
 
-		$result = Qvickly_Payments()->api()->create_order( $order_id, $auth_token );
+		$result = Qvickly_Payments()->api()->create_order( $session_id );
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( $result->get_error_message() );
 		}
@@ -110,10 +104,7 @@ class AJAX {
 	 * @return void
 	 */
 	public static function qvickly_payments_pending_payment() {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_key( $_POST['nonce'] ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'qvickly_payments_pending_payment' ) ) {
-			wp_send_json_error( 'bad_nonce' );
-		}
+		check_ajax_referer( 'qvickly_payments_pending_payment', 'nonce' );
 
 		$order_key = filter_input( INPUT_POST, 'order_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( empty( $order_key ) ) {
