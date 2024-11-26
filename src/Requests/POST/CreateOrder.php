@@ -47,15 +47,3 @@ class CreateOrder extends POSTRequest {
 		);
 	}
 }
-
-add_filter(
-	'site_url',
-	function ( $url, $path, $scheme ) {
-		if ( $scheme === 'https' ) {
-			return str_replace( 'https://', 'http://', $url );
-		}
-		return $url;
-	},
-	10,
-	3
-);
