@@ -9,18 +9,6 @@ jQuery( function ( $ ) {
         sessionId: QvicklyPaymentsParams.sessionId,
 
         init: () => {
-            let field = $( "#billing_company_number_field" ).detach()
-            const moveCompanyNumberField = () => {
-                if ( QvicklyPayments.params.companyNumberPlacement === "billing_form" ) {
-                    if ( QvicklyPayments.isActiveGateway() ) {
-                        $( "#billing_company_number_field" ).detach()
-                        field.insertAfter( "#billing_company_field" )
-                    } else {
-                        field = $( "#billing_company_number_field" ).detach()
-                    }
-                }
-            }
-
             $( "body" ).on( "click", "input#place_order, button#place_order", ( e ) => {
                 if ( ! QvicklyPayments.isActiveGateway() ) {
                     return
@@ -43,11 +31,27 @@ jQuery( function ( $ ) {
                     }
 
                     // Required whenever the customer changes payment method.
-                    $( "body" ).on( "change", 'input[name="payment_method"]', moveCompanyNumberField )
+                    $( "body" ).on( "change", 'input[name="payment_method"]', QvicklyPayments.moveCompanyNumberField )
                     // Required when the checkout is initially loaded, and Qvickly is the chosen gateway.
-                    $( "body" ).on( "updated_checkout", moveCompanyNumberField )
+                    $( "body" ).on( "updated_checkout", QvicklyPayments.moveCompanyNumberField )
                 }
             } )
+        },
+
+        /**
+         * Moves the company number field to the billing form or leaves in the payment method.
+         * @returns {void}
+         */
+        moveCompanyNumberField: () => {
+            let field = $( "#billing_company_number_field" ).detach()
+            if ( QvicklyPayments.params.companyNumberPlacement === "billing_form" ) {
+                if ( QvicklyPayments.isActiveGateway() ) {
+                    $( "#billing_company_number_field" ).detach()
+                    field.insertAfter( "#billing_company_field" )
+                } else {
+                    field = $( "#billing_company_number_field" ).detach()
+                }
+            }
         },
 
         /**
