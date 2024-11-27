@@ -24,6 +24,15 @@ class Session {
 	/**
 	 * The gateway session.
 	 *
+	 * ```
+	 * array(
+	 *  'number' => 1234567,
+	 *  'orderid' => UUID,
+	 *  'status' => 'Created',
+	 *  'url' => URL,
+	 * )
+	 * ```
+	 *
 	 * @var array|null
 	 */
 	private $gateway_session = null;
@@ -139,9 +148,6 @@ class Session {
 	 * @return string
 	 */
 	public function get_reference() {
-		// Check if a session already exist. Retrieve the session reference if it does.
-		$this->resume();
-
 		if ( empty( $this->session_reference ) ) {
 			$this->session_reference = wp_generate_uuid4();
 			$this->save();
@@ -172,7 +178,7 @@ class Session {
 	 *
 	 * @return bool Whether there was a session to resume.
 	 */
-	private function resume() {
+	public function resume() {
 		$session = isset( WC()->session ) ? WC()->session->get( self::SESSION_KEY ) : null;
 		if ( ! empty( $session ) ) {
 			$session = json_decode( $session, true );
@@ -314,7 +320,7 @@ class Session {
 		}
 
 		if ( is_checkout() && ! is_order_received_page() ) {
-			if ( 'authorized' === $session['state'] ) {
+			if ( 'Created' === $session['status'] ) {
 				$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $this->get_payment_number() );
 				$key   = $order->get_order_key();
 				if ( empty( $order ) ) {
