@@ -64,12 +64,28 @@ class API {
 	 * @return \WP_Error|array
 	 */
 	public function get_session( $session_id ) {
-		$request  = new Requests\GETRequest\GetSession( $session_id );
+		$request  = new Requests\POST\GetSession( $session_id );
 		$response = $request->request();
 
 		return $this->check_for_api_error( $response );
 	}
 
+	/**
+	 * Checks if an API error occurred.
+	 *
+	 * Qvickly Payments always return a `200` respond when a request is received, even if the request body is invalid.
+	 *
+	 * @param array|\WP_Error $body The response body.
+	 * @return bool
+	 */
+	public static function is_api_error( $body ) {
+		// Since we cannot rely on `is_wp_error` or HTTP codes, we have to check if the `code` property is set in the response body which indicates an error has occurred.
+		if ( isset( $body['code'] ) ) {
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Checks for API errors, and determines whether these should be printed to the customer.
