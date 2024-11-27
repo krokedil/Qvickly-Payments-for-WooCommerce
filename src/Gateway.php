@@ -141,7 +141,12 @@ class Gateway extends \WC_Payment_Gateway {
 
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $_POST['billing_company_number'] ) && empty( $_POST['billing_company_number'] ) ) {
-			wc_add_notice( __( 'Please enter your company number.', 'qvicklyy-payments-for-woocommerce' ), 'error' );
+			wc_add_notice( __( 'Please enter your company number.', 'qvickly-payments-for-woocommerce' ), 'error' );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $_POST['billing_company'] ) && empty( $_POST['billing_company'] ) ) {
+			wc_add_notice( __( 'Please enter your company name.', 'qvickly-payments-for-woocommerce' ), 'error' );
 		}
 	}
 
