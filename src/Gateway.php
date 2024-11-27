@@ -347,6 +347,13 @@ class Gateway extends \WC_Payment_Gateway {
 		}
 
 		if ( ! empty( $order->get_date_paid() ) ) {
+			// Check for if the session wasn't clear properly. This can happen if the order is successfully created, but the customer was not redirected to the checkout page.
+			$session_id = Qvickly_Payments()->session()->get_reference();
+			if ( $order->get_meta( '_wc_qvickly_session_id' ) === $session_id ) {
+				Qvickly_Payments()->logger()->debug( '[MAYBE_CONFIRM]: Order already paid, but session still remained. Session is now cleared.', $context );
+				Qvickly_Payments()->session()->clear( $order );
+			}
+
 			Qvickly_Payments()->logger()->debug( '[MAYBE_CONFIRM]: Order already paid. Customer probably refreshed thankyou page.', $context );
 			return;
 		}
