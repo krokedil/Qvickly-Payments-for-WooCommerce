@@ -188,10 +188,19 @@ class Gateway extends \WC_Payment_Gateway {
 			'createOrderNonce'         => wp_create_nonce( 'qvickly_payments_create_order' ),
 		);
 
+		$session = Qvickly_Payments()->session()->get_session();
+
+		$redirect = $session['url'] ?? false;
+		if ( empty( $redirect ) ) {
+			return array(
+				'result' => 'error',
+			);
+		}
+
 		return array(
 			'order_key' => $order->get_order_key(),
 			'customer'  => $customer,
-			'redirect'  => $order->get_checkout_order_received_url(),
+			'redirect'  => $redirect,
 			'nonce'     => $nonce,
 			'result'    => 'success',
 		);
@@ -248,26 +257,25 @@ class Gateway extends \WC_Payment_Gateway {
 		$session_id    = $order->get_meta( '_qvickly_session_id' );
 		$qvickly_order = Qvickly_Payments()->api()->get_session( $session_id );
 		if ( is_wp_error( $qvickly_order ) ) {
-			$context['sessionId'] = $session_id;
+			$context['session_id'] = $session_id;
 			Qvickly_Payments()->logger()->error( '[CONFIRM]: Failed to get Qvickly order. Unrecoverable error, aborting.', $context );
 			return;
 		}
 
 		// The orderId is not available when the purchase is awaiting signatory.
-		$payment_id = wc_get_var( $qvickly_order['orderId'] );
-		if ( 'authorized' === $qvickly_order['state'] ) {
-			$order->payment_complete( $payment_id );
-		} elseif ( 'awaitingSignatory' === $qvickly_order['state'] ) {
-			$order->update_status( 'on-hold', __( 'Awaiting payment confirmation from Qvickly.', 'qvickly-payments-for-woocommerce' ) );
+		$payment_data   = $qvickly_order['PaymentData'];
+		$transaction_id = wc_get_var( $payment_data['orderid'] );
+		if ( 'Created' === strtolower( $payment_data['status'] ) ) {
+			$order->payment_complete( $transaction_id );
 		} else {
-			Qvickly_Payments()->logger()->warning( "[CONFIRM]: Unknown order state: {$qvickly_order['state']}", $context );
+			Qvickly_Payments()->logger()->warning( "[CONFIRM]: Unknown order status: {$payment_data['status']}", $context );
 		}
 
 		$order->set_payment_method( $this->id );
-		$order->set_transaction_id( $payment_id );
+		$order->set_transaction_id( $transaction_id );
 
 		// orderId not available if state is awaitingSignatory.
-		isset( $qvickly_order['orderId'] ) && $order->update_meta_data( '_qvickly_order_id', $qvickly_order['orderId'] );
+		isset( $transaction_id ) && $order->update_meta_data( '_qvickly_order_id', $qvickly_order['orderId'] );
 
 		$env = wc_string_to_bool( Qvickly_Payments()->settings( 'test_mode' ) ?? 'no' ) ? 'sandbox' : 'production';
 		$order->update_meta_data( '_qvickly_environment', $env );
