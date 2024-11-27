@@ -320,7 +320,7 @@ class Session {
 		}
 
 		if ( is_checkout() && ! is_order_received_page() ) {
-			if ( 'Created' === $session['status'] ) {
+			if ( 'Paid' === $session['status'] ) {
 				$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $this->get_payment_number() );
 				$key   = $order->get_order_key();
 				if ( empty( $order ) ) {
@@ -342,15 +342,6 @@ class Session {
 					function_exists( 'wc_clear_notices' ) && wc_clear_notices();
 				}
 				exit;
-			}
-
-			// TODO: Which state is considered expired?
-			if ( 'expired' === $session['state'] ) {
-				$this->clear();
-
-				if ( isset( WC()->session ) ) {
-					WC()->session->reload_checkout = true;
-				}
 			}
 		}
 	}
