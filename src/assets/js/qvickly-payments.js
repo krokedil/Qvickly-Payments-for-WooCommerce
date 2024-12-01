@@ -34,7 +34,7 @@ jQuery( function ( $ ) {
                 // If "billing_form", remove the field from the payment_form and insert it after the company name field. Otherwise, if it is "payment_form", leave as-is.
                 if ( QvicklyPayments.params.companyNumberPlacement === "billing_form" ) {
                     if ( QvicklyPayments.isActiveGateway() ) {
-                        $( "#billing_company_number_field" ).detach().insertAfter( "#billing_company_field" )
+                        $( "#billing_company_number_field" ).remove()
                     }
 
                     // Required whenever the customer changes payment method.
@@ -50,13 +50,11 @@ jQuery( function ( $ ) {
          * @returns {void}
          */
         moveCompanyNumberField: () => {
-            let field = $( "#billing_company_number_field" ).detach()
             if ( QvicklyPayments.params.companyNumberPlacement === "billing_form" ) {
                 if ( QvicklyPayments.isActiveGateway() ) {
-                    $( "#billing_company_number_field" ).detach()
-                    field.insertAfter( "#billing_company_field" )
+                    $( "#billing_company_number_field" ).detach().insertAfter( "#billing_company_field" ).show()
                 } else {
-                    field = $( "#billing_company_number_field" ).detach()
+                    $( "#billing_company_number_field" ).hide()
                 }
             }
         },
