@@ -10,17 +10,24 @@ jQuery( function ( $ ) {
 
         init: () => {
             $( "body" ).on( "click", "input#place_order, button#place_order", ( e ) => {
-                if ( ! QvicklyPayments.isActiveGateway() ) {
-                    return
-                }
+                // Do not allow a purchase to go through if ANY error occurs.
+                try {
+                    if ( ! QvicklyPayments.isActiveGateway() ) {
+                        return false
+                    }
 
-                const organizationNumber = $( "#billing_company_number" ).val().trim()
-                if ( organizationNumber.length === 0 ) {
-                    QvicklyPayments.printNotice( QvicklyPayments.params.i18n.companyNumberMissing )
+                    const organizationNumber = $( "#billing_company_number" ).val().trim()
+                    if ( organizationNumber.length === 0 ) {
+                        QvicklyPayments.printNotice( QvicklyPayments.params.i18n.companyNumberMissing )
+                        return false
+                    }
+
+                    QvicklyPayments.submitOrder( e )
+                } catch ( error ) {
+                    QvicklyPayments.printNotice( QvicklyPayments.params.i18n.genericError )
+                    console.error( error )
                     return false
                 }
-
-                QvicklyPayments.submitOrder( e )
             } )
 
             $( document ).ready( () => {
