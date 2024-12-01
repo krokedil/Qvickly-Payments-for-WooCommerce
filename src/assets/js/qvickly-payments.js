@@ -316,13 +316,13 @@ jQuery( function ( $ ) {
                         }
 
                         if ( "success" === data.result ) {
-                            const { order_key: orderId, customer } = data
+                            const { order_key: orderId, customer, redirect } = data
 
                             QvicklyPayments.logToFile(
-                                `Successfully placed order ${ orderId }. Sending "shouldProceed: true".`,
+                                `Successfully placed order ${orderId}. Redirecting customer to ${redirect}.`,
                             )
 
-                            QvicklyPayments.createOrder( orderId, QvicklyPayments.sessionId )
+                            window.location = redirect
                         } else {
                             console.warn( "AJAX request succeeded, but the Woo order was not created.", data )
                             throw "SubmitOrder failed"
