@@ -321,7 +321,7 @@ class Session {
 
 		if ( is_checkout() && ! is_order_received_page() ) {
 			if ( 'Paid' === $session['status'] ) {
-				$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $this->get_payment_number() );
+				$order = Qvickly_Payments()->gateway()->get_order_by_payment_number( $this->get_payment_number() );
 				$key   = $order->get_order_key();
 				if ( empty( $order ) ) {
 					$key      = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );

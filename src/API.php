@@ -45,7 +45,7 @@ class API {
 	 *
 	 * This can be considered acknowledging an order.
 	 *
-	 * @param int $session_id   The Qvickly Payments session ID.
+	 * @param int $session_id   The Qvickly payment number.
 	 *
 	 * @return \WP_Error|array
 	 */
@@ -59,7 +59,7 @@ class API {
 	/**
 	 * Get a session from Qvickly.
 	 *
-	 * @param string $session_id The session ID.
+	 * @param string $session_id The Qvickly payment number.
 	 *
 	 * @return \WP_Error|array
 	 */

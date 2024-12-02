@@ -67,8 +67,8 @@ class Callback {
 		$params             = filter_var_array( $params, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$context['request'] = $params;
 
-		$session_id = wc_get_var( $params['sessionId'] );
-		$event_type = wc_get_var( $params['eventType'] );
+		$payment_number = wc_get_var( $params['number'] );
+		$event_type     = wc_get_var( $params['eventType'] );
 
 		Qvickly_Payments()->logger()->debug( '[CALLBACK]: Received callback.', $context );
 
@@ -77,18 +77,18 @@ class Callback {
 			return new \WP_REST_Response( array(), 200 );
 		}
 
-		if ( empty( $session_id ) ) {
+		if ( empty( $payment_number ) ) {
 			Qvickly_Payments()->logger()->error( '[CALLBACK]: Missing payment ID.', $context );
 			return new \WP_Error( 'missing_session_id', 'Missing session ID.', array( 'status' => 404 ) );
 		}
 
-		$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $session_id );
+		$order = Qvickly_Payments()->gateway()->get_order_by_payment_number( $payment_number );
 		if ( empty( $order ) ) {
-			Qvickly_Payments()->logger()->error( "[CALLBACK]: Order '{$session_id}' not found.", $context );
+			Qvickly_Payments()->logger()->error( "[CALLBACK]: Order '{$payment_number}' not found.", $context );
 			return new \WP_Error( 'order_not_found', 'Order not found.', array( 'status' => 404 ) );
 		}
 
-		$status = $this->schedule_callback( $session_id ) ? 200 : 500;
+		$status = $this->schedule_callback( $payment_number ) ? 200 : 500;
 		if ( $status >= 500 ) {
 			return new \WP_Error( 'scheduling_failed', __( 'Failed to schedule callback.', 'qvickly-payments-for-woocommerce' ), array( 'status' => $status ) );
 		}
@@ -98,17 +98,17 @@ class Callback {
 	/**
 	 * Handles a scheduled callback.
 	 *
-	 * @param string $session_id The session ID.
+	 * @param string $payment_number The session ID.
 	 * @return void
 	 */
-	public function handle_scheduled_callback( $session_id ) {
+	public function handle_scheduled_callback( $payment_number ) {
 		$context = array(
 			'filter'     => current_filter(),
 			'function'   => __FUNCTION__,
-			'session_id' => $session_id,
+			'session_id' => $payment_number,
 		);
 
-		$order = Qvickly_Payments()->gateway()->get_order_by_session_id( $session_id );
+		$order = Qvickly_Payments()->gateway()->get_order_by_payment_number( $payment_number );
 		if ( empty( $order ) ) {
 			Qvickly_Payments()->logger()->error( '[CALLBACK]: Order not found.', $context );
 			return;
@@ -120,14 +120,14 @@ class Callback {
 	/**
 	 * Schedule a callback for later processing.
 	 *
-	 * @param string $session_id The session ID.
+	 * @param string $payment_number The session ID.
 	 * @return bool True if the callback was scheduled, false otherwise.
 	 */
-	private function schedule_callback( $session_id ) {
+	private function schedule_callback( $payment_number ) {
 		$context = array(
 			'filter'     => current_filter(),
 			'function'   => __FUNCTION__,
-			'session_id' => $session_id,
+			'session_id' => $payment_number,
 		);
 
 		$hook              = 'qvickly_payments_scheduled_callback';
@@ -144,7 +144,7 @@ class Callback {
 		 */
 		foreach ( $scheduled_actions as $action ) {
 			$action_args = $action->get_args();
-			if ( $session_id === $action_args['session_id'] ) {
+			if ( $payment_number === $action_args['session_id'] ) {
 				Qvickly_Payments()->logger()->debug( '[CALLBACK]: The order is already scheduled for processing.', $context );
 				return true;
 			}
@@ -155,7 +155,7 @@ class Callback {
 			time() + 60,
 			$hook,
 			array(
-				'session_id' => $session_id,
+				'session_id' => $payment_number,
 			)
 		);
 

@@ -94,6 +94,38 @@ class Gateway extends \WC_Payment_Gateway {
 		);
 	}
 
+	/**
+	 * Get order by reference (session ID).
+	 *
+	 * For orders awaiting signatory, the order reference is used as the payment ID. Otherwise, the orderId from Qvickly.
+	 *
+	 * @param string $payment_number Qvickly payment number.
+	 * @return \WC_Order|bool The WC_Order or false if not found.
+	 */
+	public function get_order_by_payment_number( $payment_number ) {
+		$key    = '_qvickly_session_id';
+		$orders = wc_get_orders(
+			array(
+				'meta_query' => array(
+					array(
+						'key'     => $key,
+						'value'   => $payment_number,
+						'compare' => '=',
+					),
+				),
+				'limit'      => '1',
+				'orderby'    => 'date',
+				'order'      => 'DESC',
+			)
+		);
+
+		$order = reset( $orders );
+		if ( empty( $order ) || $payment_number !== $order->get_meta( $key ) ) {
+			return false;
+		}
+
+		return $order ?? false;
+	}
 
 	/**
 	 * The payment gateway icon that will appear on the checkout page.
@@ -181,11 +213,6 @@ class Gateway extends \WC_Payment_Gateway {
 		$helper   = new Order( wc_get_order( $order_id ) );
 		$customer = $helper->get_customer();
 
-		$order = $helper->order;
-		$order->update_meta_data( '_qvickly_reference', Qvickly_Payments()->session()->get_reference() );
-		$order->update_meta_data( '_qvickly_session_id', Qvickly_Payments()->session()->get_payment_number() );
-		$order->save();
-
 		// Update the nonce only if WordPress determines it necessary, such as when a guest becomes signed in.
 		$nonce = array(
 			'changePaymentMethodNonce' => wp_create_nonce( 'qvickly_payments_change_payment_method' ),
@@ -201,6 +228,11 @@ class Gateway extends \WC_Payment_Gateway {
 				'result' => 'error',
 			);
 		}
+
+		$order = $helper->order;
+		$order->update_meta_data( '_qvickly_session_id', Qvickly_Payments()->session()->get_reference() );
+		$order->update_meta_data( '_qvickly_payment_number', Qvickly_Payments()->session()->get_payment_number() );
+		$order->save();
 
 		return array(
 			'order_key' => $order->get_order_key(),
@@ -221,7 +253,7 @@ class Gateway extends \WC_Payment_Gateway {
 	 * @return bool
 	 */
 	public function process_refund( $order_id, $amount = null, $reason = '' ) {
-		return apply_filters( 'qvicklyy_payments_process_refund', false, $order_id, $amount, $reason );
+		return apply_filters( 'qvickly_payments_process_refund', false, $order_id, $amount, $reason );
 	}
 
 	/**
@@ -242,83 +274,6 @@ class Gateway extends \WC_Payment_Gateway {
 		}
 
 		return untrailingslashit( plugin_dir_path( __FILE__ ) ) . '/templates/payment-categories.php';
-	}
-
-	/**
-	 * Confirm the order.
-	 *
-	 * @param \WC_Order $order The WooCommerce order.
-	 * @param array     $context The logging context. Optional.
-	 * @return void
-	 */
-	public function confirm_order( $order, $context = array() ) {
-		if ( empty( $context ) ) {
-			$context = array(
-				'filter'   => current_filter(),
-				'function' => __FUNCTION__,
-			);
-		}
-
-		$session_id    = $order->get_meta( '_qvickly_session_id' );
-		$qvickly_order = Qvickly_Payments()->api()->get_session( $session_id );
-		if ( is_wp_error( $qvickly_order ) ) {
-			$context['session_id'] = $session_id;
-			Qvickly_Payments()->logger()->error( '[CONFIRM]: Failed to get Qvickly order. Unrecoverable error, aborting.', $context );
-			return;
-		}
-
-		// The orderId is not available when the purchase is awaiting signatory.
-		$payment_data   = $qvickly_order['PaymentData'];
-		$transaction_id = wc_get_var( $payment_data['orderid'] );
-		if ( 'Created' === strtolower( $payment_data['status'] ) ) {
-			$order->payment_complete( $transaction_id );
-		} else {
-			Qvickly_Payments()->logger()->warning( "[CONFIRM]: Unknown order status: {$payment_data['status']}", $context );
-		}
-
-		$order->set_payment_method( $this->id );
-		$order->set_transaction_id( $transaction_id );
-
-		// orderId not available if state is awaitingSignatory.
-		isset( $transaction_id ) && $order->update_meta_data( '_qvickly_order_id', $qvickly_order['orderId'] );
-
-		$env = wc_string_to_bool( Qvickly_Payments()->settings( 'test_mode' ) ?? 'no' ) ? 'sandbox' : 'production';
-		$order->update_meta_data( '_qvickly_environment', $env );
-		$order->update_meta_data( '_qvickly_session_id', $qvickly_order['id'] );
-		$order->save();
-	}
-
-	/**
-	 * Get order by payment ID or reference.
-	 *
-	 * For orders awaiting signatory, the order reference is used as the payment ID. Otherwise, the orderId from Qvickly.
-	 *
-	 * @param string $session_id Payment ID or reference.
-	 * @return \WC_Order|bool The WC_Order or false if not found.
-	 */
-	public function get_order_by_session_id( $session_id ) {
-		$key    = '_qvickly_session_id';
-		$orders = wc_get_orders(
-			array(
-				'meta_query' => array(
-					array(
-						'key'     => $key,
-						'value'   => $session_id,
-						'compare' => '=',
-					),
-				),
-				'limit'      => '1',
-				'orderby'    => 'date',
-				'order'      => 'DESC',
-			)
-		);
-
-		$order = reset( $orders );
-		if ( empty( $order ) || $session_id !== $order->get_meta( $key ) ) {
-			return false;
-		}
-
-		return $order ?? false;
 	}
 
 	/**
@@ -374,5 +329,54 @@ class Gateway extends \WC_Payment_Gateway {
 
 		$this->confirm_order( $order, $context );
 		Qvickly_Payments()->session()->clear( $order );
+	}
+
+	/**
+	 * Confirm the order.
+	 *
+	 * @param \WC_Order $order The WooCommerce order.
+	 * @param array     $context The logging context. Optional.
+	 * @return void
+	 */
+	public function confirm_order( $order, $context = array() ) {
+		// Overwrite the context since we know the previous context was successful since it reached this point.
+		$context = array(
+			'filter'     => current_filter(),
+			'function'   => __FUNCTION__,
+			'session_id' => $order->get_meta( '_qvickly_session_id' ),
+			'order_id'   => $order->get_id(),
+		);
+
+		$payment_number = $order->get_meta( '_qvickly_payment_number' );
+		$qvickly_order  = Qvickly_Payments()->api()->get_session( $payment_number );
+		if ( is_wp_error( $qvickly_order ) ) {
+			Qvickly_Payments()->logger()->error( '[CONFIRM]: Failed to get Qvickly order. Unrecoverable error, aborting.', $context );
+			return;
+		}
+
+		// Request Qvickly to proceed with creating the order in their system.
+		$create_order = Qvickly_Payments()->api()->create_order( $payment_number );
+		if ( is_wp_error( $qvickly_order ) ) {
+			Qvickly_Payments()->logger()->error( '[CONFIRM]: Qvickly could not create the order. Unrecoverable error, aborting.', $context );
+			return;
+		}
+
+		$qvickly_order_id = $create_order['orderid'];
+		$status           = $create_order['status'];
+		$order->update_meta_data( '_qvickly_order_id', $qvickly_order_id );
+		$order->save();
+
+		if ( 'Paid' === strtolower( $status ) ) {
+			$order->payment_complete( $qvickly_order_id );
+		} else {
+			Qvickly_Payments()->logger()->warning( "[CONFIRM]: Unknown order status: {$status}", $context );
+		}
+
+		$order->set_payment_method( $this->id );
+		$order->set_transaction_id( $qvickly_order_id );
+
+		$env = wc_string_to_bool( Qvickly_Payments()->settings( 'test_mode' ) ?? 'no' ) ? 'sandbox' : 'production';
+		$order->update_meta_data( '_qvickly_environment', $env );
+		$order->save();
 	}
 }
