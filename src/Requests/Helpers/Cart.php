@@ -134,7 +134,7 @@ class Cart extends CartBase {
 	public function get_confirmation_url() {
 		$url = add_query_arg(
 			array(
-				'session_id' => '{session_id}',
+				'session_id' => Qvickly_Payments()->session()->get_reference(),
 				'order_id'   => '{order_id}',
 			),
 			wc_get_checkout_url()
