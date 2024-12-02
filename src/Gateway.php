@@ -329,8 +329,9 @@ class Gateway extends \WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function maybe_confirm_order() {
-		$key     = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$gateway = filter_input( INPUT_GET, 'gateway', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$key        = filter_input( INPUT_GET, 'key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$gateway    = filter_input( INPUT_GET, 'gateway', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$session_id = filter_input( INPUT_GET, 'session_id', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( $this->id !== $gateway ) {
 			return;
@@ -351,15 +352,23 @@ class Gateway extends \WC_Payment_Gateway {
 			return;
 		}
 
+		$session_id_from_order = $order->get_meta( '_qvickly_session_id' );
+
+		// Check if the session wasn't cleared properly. This can happen if the order is successfully created, but the customer was not redirected to the checkout page.
 		if ( ! empty( $order->get_date_paid() ) ) {
-			// Check for if the session wasn't clear properly. This can happen if the order is successfully created, but the customer was not redirected to the checkout page.
-			$session_id = Qvickly_Payments()->session()->get_reference();
-			if ( $order->get_meta( '_wc_qvickly_session_id' ) === $session_id ) {
+			$session_id_from_session = Qvickly_Payments()->session()->get_reference();
+			if ( $session_id_from_order === $session_id_from_session ) {
 				Qvickly_Payments()->logger()->debug( '[MAYBE_CONFIRM]: Order already paid, but session still remained. Session is now cleared.', $context );
 				Qvickly_Payments()->session()->clear( $order );
 			}
 
 			Qvickly_Payments()->logger()->debug( '[MAYBE_CONFIRM]: Order already paid. Customer probably refreshed thankyou page.', $context );
+			return;
+		}
+
+		// Check if the external session ID matches the order's session ID.
+		if ( $session_id_from_order !== $session_id ) {
+			Qvickly_Payments()->logger()->error( '[MAYBE_CONFIRM]: Session ID mismatch.', $context );
 			return;
 		}
 
