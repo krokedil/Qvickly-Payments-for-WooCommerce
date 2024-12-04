@@ -49,7 +49,7 @@ class Cart extends CartBase {
 		);
 
 		$shippings             = $this->get_line_shipping();
-		$maybe_chosen_shipping = array_values( WC()->session->get( 'chosen_shipping_methods' ) );
+		$maybe_chosen_shipping = array_values( WC()->session->get( 'chosen_shipping_methods' ) ?? array() );
 		if ( ! empty( $maybe_chosen_shipping ) ) {
 			$chosen_shipping = reset( $maybe_chosen_shipping );
 			foreach ( $shippings as $shipping ) {
