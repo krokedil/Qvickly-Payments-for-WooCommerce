@@ -293,7 +293,7 @@ class Session {
 
 		$helper = empty( $order ) ? new Cart() : new Order( $order );
 
-		$this->gateway_session = isset( $result['data'] ) ? $result['data'] : $this->gateway_session;
+		$this->gateway_session = isset( $result['data'] ) ? $result['data'] : $result;
 		$this->session_hash    = $this->get_hash( $order );
 		$this->session_country = $helper->get_country();
 
@@ -304,7 +304,7 @@ class Session {
 		// Persist the session to Woo.
 		$this->save( $order );
 
-		return $result;
+		return $this->gateway_session;
 	}
 
 	/**
