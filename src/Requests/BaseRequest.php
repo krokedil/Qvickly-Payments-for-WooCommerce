@@ -106,6 +106,10 @@ abstract class BaseRequest extends Request {
 	protected function process_response( $response, $request_args, $request_url ) {
 		$result = parent::process_response( $response, $request_args, $request_url );
 
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		if ( isset( $result['code'] ) ) {
 			return new \WP_Error( $result['code'], $result['message'] );
 		}
