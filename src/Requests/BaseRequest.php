@@ -31,7 +31,7 @@ abstract class BaseRequest extends Request {
 			'base_url'           => 'https://api.qvickly.io',
 		);
 
-		$this->is_test_mode = $this->settings['test_mode'] ? 'true' : 'false';
+		$this->is_test_mode = wc_string_to_bool( $this->settings['test_mode'] ) ? 'true' : 'false';
 		$this->api_id       = $this->settings['api_id'];
 		$this->api_key      = $this->settings['api_key'];
 
