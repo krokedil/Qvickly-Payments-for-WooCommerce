@@ -13,7 +13,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Krokedil\\Qvickly\\Payments\\": "src/"
+            "Krokedil\\Qvickly\\Payments\\": "src/",
+			"Krokedil\\Qvickly\\Payments\\Blocks\\": "src/blocks/src/"
         }
     },
     "config": {

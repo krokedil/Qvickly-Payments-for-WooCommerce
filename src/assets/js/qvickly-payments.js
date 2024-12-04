@@ -319,7 +319,7 @@ jQuery( function ( $ ) {
                             const { order_key: orderId, customer, redirect } = data
 
                             QvicklyPayments.logToFile(
-                                `Successfully placed order ${orderId}. Redirecting customer to ${redirect}.`,
+                                `Successfully placed order ${ orderId }. Redirecting customer to ${ redirect }.`,
                             )
 
                             window.location = redirect

@@ -52,10 +52,12 @@ add_action(
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
 
 			// Declare Checkout Blocks incompatibility.
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, false );
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', __FILE__, true );
 		}
 	}
 );
+
+add_action( 'woocommerce_blocks_loaded', 'register_payment_block' );
 
 /**
  * Require the autoloader, if it does not exist fail gracefully and output an error.
@@ -117,4 +119,20 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $qvickl
  */
 function Qvickly_Payments() {  // phpcs:ignore -- allow non-snake case function name.
 	return Plugin::get_instance();
+}
+
+
+/**
+ * Register the Checkout blocks method.
+ */
+function register_payment_block() {
+	if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+		require_once QVICKLY_PAYMENTS_PLUGIN_PATH . '/blocks/src/checkout/PaymentBlock.php';
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			function ( $payment_method_registry ) {
+				$payment_method_registry->register( new Qvickly_Checkout_Block() );
+			}
+		);
+	}
 }

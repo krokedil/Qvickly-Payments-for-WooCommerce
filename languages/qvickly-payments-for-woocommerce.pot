@@ -1,0 +1,194 @@
+# Copyright (C) 2024 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: "
+"https://wordpress.org/support/plugin/Qvickly-Payments-for-WooCommerce\n"
+"POT-Creation-Date: 2024-12-04 16:04:47+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
+
+#: blocks/build/src/checkout/PaymentBlock.php:61
+#: blocks/build/src/checkout/PaymentBlock.php:75
+msgid "Qvickly Payments title"
+msgstr ""
+
+#: blocks/build/src/checkout/PaymentBlock.php:62
+#: blocks/build/src/checkout/PaymentBlock.php:76
+msgid "Qvickly Payments description"
+msgstr ""
+
+#: blocks/build/src/checkout/PaymentBlock.php:95 src/Assets.php:102
+msgid "Please enter a company number."
+msgstr ""
+
+#: qvickly-payments-for-woocommerce.php:78
+#. translators: 1: composer command. 2: plugin directory
+msgid ""
+"Your installation of the Qvickly Payments for WooCommerce Plugin is "
+"incomplete. Please run %1$s within the %2$s directory."
+msgstr ""
+
+#: qvickly-payments-for-woocommerce.php:95
+#. translators: 1: composer command. 2: plugin directory
+msgid ""
+"Your installation of the Qvickly Payments plugin is incomplete. Please run "
+"%1$s within the %2$s directory."
+msgstr ""
+
+#: src/Assets.php:103
+msgid "Something went wrong. Please try again or contact the store."
+msgstr ""
+
+#: src/Callback.php:93
+msgid "Failed to schedule callback."
+msgstr ""
+
+#: src/Gateway.php:26 src/Gateway.php:27
+msgid "Qvickly Payments"
+msgstr ""
+
+#: src/Gateway.php:87 src/Gateway.php:89
+msgid "Company number"
+msgstr ""
+
+#: src/Gateway.php:176
+msgid "Please enter your company number."
+msgstr ""
+
+#: src/Gateway.php:181
+msgid "Please enter your company name."
+msgstr ""
+
+#: src/Plugin.php:167
+msgid "Settings"
+msgstr ""
+
+#: src/Session.php:241
+msgid "Order not found"
+msgstr ""
+
+#: src/Settings.php:28 src/Settings.php:114
+msgid "Enable"
+msgstr ""
+
+#: src/Settings.php:29
+msgid "Enable payment gateway"
+msgstr ""
+
+#: src/Settings.php:35
+msgid "Account settings"
+msgstr ""
+
+#: src/Settings.php:39
+msgid "API ID"
+msgstr ""
+
+#: src/Settings.php:42 src/Settings.php:51
+msgid "Can be found or generated in the merchant portal."
+msgstr ""
+
+#: src/Settings.php:48
+msgid "API Key"
+msgstr ""
+
+#: src/Settings.php:57
+msgid "Test mode"
+msgstr ""
+
+#: src/Settings.php:60
+msgid ""
+"While in test mode, the customer will NOT be charged. Test mode is useful "
+"for testing and debugging purposes."
+msgstr ""
+
+#: src/Settings.php:64
+msgid "Checkout settings"
+msgstr ""
+
+#: src/Settings.php:68
+msgid "Title"
+msgstr ""
+
+#: src/Settings.php:70
+msgid ""
+"The payment gateway title (appears on checkout page if more than one "
+"payment method is available)."
+msgstr ""
+
+#: src/Settings.php:74
+msgid "Description"
+msgstr ""
+
+#: src/Settings.php:76
+msgid ""
+"The payment gateway method description (appears on checkout page if more "
+"than one payment method is available)."
+msgstr ""
+
+#: src/Settings.php:78
+msgid "Choose your payment method in our checkout."
+msgstr ""
+
+#: src/Settings.php:82
+msgid "Payment method"
+msgstr ""
+
+#: src/Settings.php:85
+msgid "The payment method to show to the customer."
+msgstr ""
+
+#: src/Settings.php:87
+msgid "Card"
+msgstr ""
+
+#: src/Settings.php:88
+msgid "myQvickly"
+msgstr ""
+
+#: src/Settings.php:92
+msgid "Company number field"
+msgstr ""
+
+#: src/Settings.php:95
+msgid "Where to display the company number field."
+msgstr ""
+
+#: src/Settings.php:97
+msgid "Payment form"
+msgstr ""
+
+#: src/Settings.php:98
+msgid "Billing form"
+msgstr ""
+
+#: src/Settings.php:102
+msgid "Troubleshooting"
+msgstr ""
+
+#: src/Settings.php:106
+msgid "Logging"
+msgstr ""
+
+#: src/Settings.php:109
+msgid ""
+"Logging is required for troubleshooting any issues related to the plugin. "
+"It is recommended that you always have it enabled."
+msgstr ""
+
+#: src/Settings.php:113
+msgid "Detailed logging"
+msgstr ""
+
+#: src/Settings.php:116
+msgid ""
+"Enable detailed logging to capture extra data. Use this only when needed "
+"for debugging hard-to-replicate issues, as it generates significantly more "
+"log entries."
+msgstr ""
