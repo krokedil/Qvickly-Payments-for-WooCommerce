@@ -23,7 +23,7 @@ class Qvickly_Checkout_Block extends AbstractPaymentMethodType {
 		$assets_path = dirname( __DIR__, 2 ) . '/build/checkout.asset.php';
 		if ( file_exists( $assets_path ) ) {
 			$assets = require $assets_path;
-			wp_register_script( 'qvickly-checkout-block', QVICKLY_PAYMENTS_PLUGIN_URL . '/blocks/build/checkout.js', $assets['dependencies'], $assets['version'], true );
+			wp_register_script( 'qvickly-checkout-block', QVICKLY_PAYMENTS_PLUGIN_URL . '/blocks/build/payments.js', $assets['dependencies'], $assets['version'], true );
 		}
 	}
 
