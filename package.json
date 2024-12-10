@@ -8,7 +8,7 @@
     "makepot": "pnpx grunt makepot",
     "cssmin": "pnpx grunt cssmin",
     "jsmin": "pnpx webpack",
-    "build": "pnpm makepot && pnpm cssmin && pnpm lint &&pnpm jsmin"
+    "build": "pnpm makepot && pnpm cssmin && pnpm lint && pnpm jsmin"
   },
   "keywords": [],
   "author": "Krokedil",
