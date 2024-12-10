@@ -151,7 +151,7 @@ class Gateway extends \WC_Payment_Gateway {
 	/**
 	 * Check if the gateway should be available.
 	 *
-	 * This function is extracted to create the 'qvicklyy_payments_is_available' filter.
+	 * This function is extracted to create the 'qvickly_payments_is_available' filter.
 	 *
 	 * @return bool
 	 */
@@ -269,7 +269,7 @@ class Gateway extends \WC_Payment_Gateway {
 			return $located;
 		}
 
-		if ( ( 'checkout/payment-method.php' !== $template_name ) || ( 'qvicklyy_payments' !== $args['gateway']->id ) ) {
+		if ( ( 'checkout/payment-method.php' !== $template_name ) || ( 'qvickly_payments' !== $args['gateway']->id ) ) {
 			return $located;
 		}
 
