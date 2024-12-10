@@ -97,7 +97,6 @@ class Assets {
 				'submitOrderUrl'            => \WC_AJAX::get_endpoint( 'checkout' ),
 				'gatewayId'                 => 'qvickly_payments',
 				'reference'                 => $reference,
-				'companyNumberPlacement'    => Qvickly_Payments()->settings( 'company_number_placement' ),
 				'i18n'                      => array(
 					'companyNumberMissing' => __( 'Please enter a company number.', 'qvickly-payments-for-woocommerce' ),
 					'genericError'         => __( 'Something went wrong. Please try again or contact the store.', 'qvickly-payments-for-woocommerce' ),

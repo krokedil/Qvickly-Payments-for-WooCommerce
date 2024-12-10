@@ -50,11 +50,6 @@ class Gateway extends \WC_Payment_Gateway {
 		add_filter( 'wc_get_template', array( $this, 'payment_categories' ), 10, 3 );
 		add_action( 'init', array( $this, 'maybe_confirm_order' ), 999 );
 
-		// Process the checkout before the payment is processed.
-		add_action( 'woocommerce_checkout_process', array( $this, 'process_checkout' ) );
-
-		// Process the custom checkout fields that we inject to the checkout form (e.g., company number field).
-		add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'process_custom_checkout_fields' ) );
 	}
 
 	/**
@@ -67,31 +62,6 @@ class Gateway extends \WC_Payment_Gateway {
 
 		// Delete the access token whenever the settings are modified.
 		add_action( 'update_option_woocommerce_qvickly_payments_settings', array( Settings::class, 'maybe_update_access_token' ) );
-	}
-
-	/**
-	 * Summary of payment_fields
-	 *
-	 * @return void
-	 */
-	public function payment_fields() {
-		parent::payment_fields();
-
-		woocommerce_form_field(
-			'billing_company_number',
-			array(
-				'type'              => 'text',
-				'class'             => array(
-					'form-row-wide',
-				),
-				'label'             => __( 'Company number', 'qvickly-payments-for-woocommerce' ),
-				'required'          => true,
-				'placeholder'       => __( 'Company number', 'qvickly-payments-for-woocommerce' ),
-				'custom_attributes' => array(
-					'required' => 'true',
-				),
-			)
-		);
 	}
 
 	/**
@@ -133,7 +103,7 @@ class Gateway extends \WC_Payment_Gateway {
 	 * @return string
 	 */
 	public function get_icon() {
-		$image_path = plugin_dir_url( __FILE__ ) . 'assets/img/gateway-icon.svg';
+		$image_path = plugin_dir_url( __FILE__ ) . 'assets/img/gateway-icon.png';
 		return "<img src='{$image_path}' style='max-width: 90%' alt='Qvickly Payments logo' />";
 	}
 
@@ -157,50 +127,6 @@ class Gateway extends \WC_Payment_Gateway {
 	 */
 	private function check_availability() {
 		return wc_string_to_bool( $this->enabled );
-	}
-
-	/**
-	 * Process the checkout before the payment is processed.
-	 *
-	 * @hook woocommerce_checkout_process
-	 * @return void
-	 */
-	public function process_checkout() {
-		$chosen_gateway = WC()->session->get( 'chosen_payment_method' );
-		if ( $this->id !== $chosen_gateway ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( isset( $_POST['billing_company_number'] ) && empty( $_POST['billing_company_number'] ) ) {
-			wc_add_notice( __( 'Please enter your company number.', 'qvickly-payments-for-woocommerce' ), 'error' );
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( isset( $_POST['billing_company'] ) && empty( $_POST['billing_company'] ) ) {
-			wc_add_notice( __( 'Please enter your company name.', 'qvickly-payments-for-woocommerce' ), 'error' );
-		}
-	}
-
-	/**
-	 * Process the custom checkout fields that we inject to the checkout form (e.g., company number field).
-	 *
-	 * @hook woocommerce_checkout_update_order_meta
-	 * @param int $order_id The WooCommerce order id.
-	 * @return void
-	 */
-	public function process_custom_checkout_fields( $order_id ) {
-		$order = wc_get_order( $order_id );
-		if ( $order->get_payment_method() !== $this->id ) {
-			return;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification
-		$company_number = filter_input( INPUT_POST, 'billing_company_number', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! empty( $company_number ) ) {
-			$order->update_meta_data( '_billing_company_number', sanitize_text_field( $company_number ) );
-			$order->save();
-		}
 	}
 
 	/**

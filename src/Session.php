@@ -208,8 +208,6 @@ class Session {
 		$this->session_hash      = null;
 		$this->session_country   = null;
 		$this->session_reference = null;
-
-		// No need to clear the $payment_categories as it is overwritten when a new session is created.
 	}
 
 	/**
