@@ -319,7 +319,7 @@ jQuery( function ( $ ) {
                             const { order_key: orderId, customer, redirect } = data
 
                             QvicklyPayments.logToFile(
-                                `Successfully placed order ${orderId}. Redirecting customer to ${redirect}.`,
+                                `Successfully placed order ${ orderId }. Redirecting customer to ${ redirect }.`,
                             )
 
                             window.location = redirect
@@ -371,7 +371,16 @@ jQuery( function ( $ ) {
                     session_id: sessionId,
                     nonce: createOrderNonce,
                 },
+                async: false,
                 success: ( data ) => {
+                    if ( ! data.success ) {
+                        submitOrderFail(
+                            "createOrder",
+                            "The order was successful created, but the payment could not be created.",
+                        )
+                        return
+                    }
+
                     const {
                         data: { location },
                     } = data
@@ -381,7 +390,11 @@ jQuery( function ( $ ) {
                     console.debug( "Error:", textStatus, errorThrown )
                     console.debug( "Response:", jqXHR.responseText )
 
-                    submitOrderFail( "createOrder", "The payment was successful, but the order could not be created." )
+                    console.error( errorThrown )
+                    submitOrderFail(
+                        "createOrder",
+                        "The order was successful created, but the payment could not be created.",
+                    )
                 },
             } )
         },

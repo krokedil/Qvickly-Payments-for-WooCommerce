@@ -72,7 +72,7 @@ class AJAX {
 
 		$result = Qvickly_Payments()->api()->create_order( $session_id );
 		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( $result->get_error_message() );
+			wp_send_json_error( $result );
 		}
 
 		$payment_id = $result['orderId'];
