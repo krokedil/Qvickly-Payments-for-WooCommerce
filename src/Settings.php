@@ -68,7 +68,8 @@ class Settings {
 				'title'       => __( 'Title', 'qvickly-payments-for-woocommerce' ),
 				'type'        => 'text',
 				'description' => __( 'The payment gateway title (appears on checkout page if more than one payment method is available).', 'qvickly-payments-for-woocommerce' ),
-				'default'     => 'Qvickly Payments',
+				'default'     => __( 'Pay with Qvickly', 'qvickly-payments-for-woocommerce' ),
+				'placeholder' => __( 'Pay with Qvickly', 'qvickly-payments-for-woocommerce' ),
 			),
 			'redirect_description' => array(
 				'title'       => __( 'Description', 'qvickly-payments-for-woocommerce' ),
