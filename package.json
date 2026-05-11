@@ -8,8 +8,7 @@
     "lint": "pnpx wp-prettier src/assets/js --paren-spacing --tab-width 4 --print-width 120 --no-semi --write",
     "makepot": "pnpx grunt makepot",
     "cssmin": "pnpx grunt cssmin",
-    "jsmin": "pnpx webpack",
-    "build": "pnpm makepot && pnpm cssmin && pnpm lint && pnpm jsmin"
+    "build": "pnpm makepot && pnpm cssmin && pnpm lint"
   },
   "keywords": [],
   "author": "Krokedil",
